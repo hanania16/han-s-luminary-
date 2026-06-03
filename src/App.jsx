@@ -61,17 +61,35 @@ function Toasts({toasts}){
 function FloatingPhotos({ photos }) {
   const bubbles = useMemo(() => {
     const picked = shuffle(photos).slice(0, Math.min(10, photos.length));
-    return picked.map((p, i) => {
-      const sizes  = [110, 130, 100, 145, 120, 90, 155, 105, 135, 115];
-      const size   = sizes[i % sizes.length];
-      const left   = 3 + (i * 9.5) % 94;
-      const top    = 5 + (i * 13 + 7) % 85;
-      const dur    = 1.0 + (i * 0.22) % 0.9;
-      const delay  = -(i * 0.17);
-      const rotate = -15 + (i * 7) % 30;
-      return { ...p, size, left, top, dur, delay, rotate };
-    });
-  }, [photos.map(p=>p.id).join(",")]);
+    const cw = window.innerWidth;
+    const ch = window.innerHeight + 400;
+    const margin = 12;
+    const sizes  = [110, 130, 100, 145, 120, 90, 155, 105, 135, 115];
+
+    const result = [];
+    for (const p of picked) {
+      let left, top, size;
+      let attempts = 0;
+      let ok = false;
+      while (!ok && attempts < 80) {
+        size = sizes[Math.floor(Math.random() * sizes.length)];
+        left = Math.random() * 96;
+        top  = Math.random() * 95;
+        const cx = left / 100 * cw, cy = top / 100 * ch;
+        ok = result.every(b => {
+          const bx = b.left / 100 * cw, by = b.top / 100 * ch;
+          return cx + size + margin < bx || bx + b.size + margin < cx ||
+                 cy + size + margin < by || by + b.size + margin < cy;
+        });
+        attempts++;
+      }
+      const dur    = 6 + Math.random() * 4;
+      const delay  = Math.random() * 3;
+      const rotate = Math.random() * 40 - 20;
+      result.push({ ...p, size, left, top, dur, delay, rotate });
+    }
+    return result;
+  }, [photos]);
 
   return (
     <div style={{position:"absolute",inset:0,overflow:"hidden",pointerEvents:"none",zIndex:0}}>
@@ -85,7 +103,7 @@ function FloatingPhotos({ photos }) {
           border:"3px solid rgba(255,255,255,0.6)",
           boxShadow:"0 8px 32px rgba(236,72,153,0.18), 0 2px 8px rgba(255,182,193,0.3)",
           opacity:0,
-          animation:`dropBubble ${b.dur}s ${b.delay}s cubic-bezier(.22,.68,.36,1.1) both`,
+          animation:`dropBubble ${b.dur}s ${b.delay}s linear infinite both`,
           filter:"blur(0.5px)",
         }}>
           <div style={{width:"100%",height:"100%",transform:`rotate(${b.rotate}deg)`}}>
@@ -136,9 +154,12 @@ body { background:var(--bg); color:var(--text); font-family:'Nunito',sans-serif;
 @keyframes spin     { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 @keyframes modalIn  { from{opacity:0;transform:scale(0.93) translateY(16px)} to{opacity:1;transform:scale(1) translateY(0)} }
 @keyframes dropBubble {
-  0%   { transform:translateY(-22vh) scale(0.7); opacity:0; }
-  55%  { opacity:0.55; }
-  100% { transform:translateY(0) scale(1); opacity:0.55; }
+  0%   { transform:translateY(-30vh) scale(0.65); opacity:0; }
+  10%  { opacity:0.5; }
+  40%  { transform:translateY(-2vh) scale(1); opacity:0.45; }
+  70%  { transform:translateY(15vh) scale(0.9); opacity:0.25; }
+  80%  { opacity:0; }
+  100% { transform:translateY(25vh) scale(0.85); opacity:0; }
 }
 @keyframes heartPop { 0%{transform:scale(1)} 50%{transform:scale(1.35)} 100%{transform:scale(1)} }
 @keyframes sparkle  { 0%,100%{opacity:0;transform:scale(0)} 50%{opacity:1;transform:scale(1)} }
@@ -568,10 +589,10 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
 
   return (
     <>
+      <div style={{position:"relative"}}>
       {/* HERO */}
       <section className="hero">
         <div className="hero-mesh" />
-        <FloatingPhotos photos={photos} />
         <Sparkles />
 
         <div className="hero-eyebrow">✦ Personal Memory Archive ✦</div>
@@ -598,6 +619,8 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
         </div>
       </section>
 
+      <FloatingPhotos photos={photos} />
+
       {/* ALBUMS */}
       <section className="section">
         <h2 className="section-title">Albums</h2>
@@ -617,6 +640,7 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
           ))}
         </div>
       </section>
+      </div>
 
       {/* GALLERY */}
       <div id="gallery-anchor" />
