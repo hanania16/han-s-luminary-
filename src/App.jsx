@@ -59,21 +59,17 @@ function Toasts({toasts}){
 
 // ─── FLOATING PHOTO BUBBLES ────────────────────────────────────────────────────
 function FloatingPhotos({ photos }) {
-  // Pick up to 10 random photos, fixed on mount
   const bubbles = useMemo(() => {
     const picked = shuffle(photos).slice(0, Math.min(10, photos.length));
     return picked.map((p, i) => {
       const sizes  = [110, 130, 100, 145, 120, 90, 155, 105, 135, 115];
       const size   = sizes[i % sizes.length];
-      // spread them across the full viewport
       const left   = 3 + (i * 9.5) % 94;
       const top    = 5 + (i * 13 + 7) % 85;
-      const dur    = 14 + (i * 3.7) % 12;
-      const delay  = -(i * 2.3);
+      const dur    = 1.2 + (i * 0.25) % 1.0;
+      const delay  = -(i * 0.18);
       const rotate = -15 + (i * 7) % 30;
-      const tiltX  = -8 + (i * 4.1) % 16;
-      const tiltY  = -8 + (i * 3.3) % 16;
-      return { ...p, size, left, top, dur, delay, rotate, tiltX, tiltY };
+      return { ...p, size, left, top, dur, delay, rotate };
     });
   }, [photos.map(p=>p.id).join(",")]);
 
@@ -88,9 +84,9 @@ function FloatingPhotos({ photos }) {
           overflow:"hidden",
           border:"3px solid rgba(255,255,255,0.6)",
           boxShadow:"0 8px 32px rgba(236,72,153,0.18), 0 2px 8px rgba(255,182,193,0.3)",
-          opacity:0.55,
+          opacity:0,
           transform:`rotate(${b.rotate}deg)`,
-          animation:`floatBubble${i%4} ${b.dur}s ${b.delay}s ease-in-out infinite`,
+          animation:`dropBubble${i%4} ${b.dur}s ${b.delay}s ease-out both`,
           filter:"blur(0.5px)",
         }}>
           <img src={b.thumb} alt="" style={{width:"100%",height:"100%",objectFit:"cover",filter:"saturate(1.1) brightness(1.05)"}} loading="lazy"/>
@@ -138,10 +134,10 @@ body { background:var(--bg); color:var(--text); font-family:'Nunito',sans-serif;
 @keyframes shimmer  { from{background-position:-200% center} to{background-position:200% center} }
 @keyframes spin     { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 @keyframes modalIn  { from{opacity:0;transform:scale(0.93) translateY(16px)} to{opacity:1;transform:scale(1) translateY(0)} }
-@keyframes floatBubble0 { 0%,100%{transform:rotate(var(--r,0deg)) translateY(0px) scale(1)}   50%{transform:rotate(var(--r,0deg)) translateY(-22px) scale(1.03)} }
-@keyframes floatBubble1 { 0%,100%{transform:rotate(var(--r,0deg)) translateY(0px) scale(1)}   50%{transform:rotate(var(--r,0deg)) translateY(-16px) scale(1.04)} }
-@keyframes floatBubble2 { 0%,100%{transform:rotate(var(--r,0deg)) translateY(-8px) scale(1.02)} 50%{transform:rotate(var(--r,0deg)) translateY(14px) scale(0.98)} }
-@keyframes floatBubble3 { 0%,100%{transform:rotate(var(--r,0deg)) translateY(4px) scale(0.99)}  50%{transform:rotate(var(--r,0deg)) translateY(-18px) scale(1.02)} }
+@keyframes dropBubble0 { 0%{transform:rotate(var(--r,0deg)) translateY(-18vh) scale(0.8);opacity:0} 60%{opacity:0.55} 100%{transform:rotate(var(--r,0deg)) translateY(0px) scale(1);opacity:0.55} }
+@keyframes dropBubble1 { 0%{transform:rotate(var(--r,0deg)) translateY(-22vh) scale(0.8);opacity:0} 60%{opacity:0.55} 100%{transform:rotate(var(--r,0deg)) translateY(0px) scale(1);opacity:0.55} }
+@keyframes dropBubble2 { 0%{transform:rotate(var(--r,0deg)) translateY(-14vh) scale(0.8);opacity:0} 60%{opacity:0.55} 100%{transform:rotate(var(--r,0deg)) translateY(0px) scale(1);opacity:0.55} }
+@keyframes dropBubble3 { 0%{transform:rotate(var(--r,0deg)) translateY(-20vh) scale(0.8);opacity:0} 60%{opacity:0.55} 100%{transform:rotate(var(--r,0deg)) translateY(0px) scale(1);opacity:0.55} }
 @keyframes heartPop { 0%{transform:scale(1)} 50%{transform:scale(1.35)} 100%{transform:scale(1)} }
 @keyframes sparkle  { 0%,100%{opacity:0;transform:scale(0)} 50%{opacity:1;transform:scale(1)} }
 
