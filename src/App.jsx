@@ -307,8 +307,50 @@ select option { background:#fff; }
 ::-webkit-scrollbar-thumb { background:rgba(236,72,153,0.25); border-radius:3px; }
 
 /* ── LOGIN ── */
-.login-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem; background:var(--bg); position:relative; overflow:hidden; }
-.login-card { width:100%; max-width:400px; background:rgba(255,255,255,0.92); backdrop-filter:blur(20px); border:1.5px solid var(--border-med); border-radius:28px; padding:2.5rem; position:relative; z-index:1; box-shadow:0 20px 60px rgba(236,72,153,0.15); }
+  .login-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem; background:var(--bg); position:relative; overflow:hidden; }
+  .login-card { width:100%; max-width:400px; background:rgba(255,255,255,0.92); backdrop-filter:blur(20px); border:1.5px solid var(--border-med); border-radius:28px; padding:2.5rem; position:relative; z-index:1; box-shadow:0 20px 60px rgba(236,72,153,0.15); }
+
+  @media(prefers-color-scheme:dark){
+    :root:not([data-theme=light]){
+      --bg:#0f0f18; --bg2:#1a1a2e; --bg3:#252540;
+      --card:rgba(30,30,55,0.85); --card-solid:#1e1e37;
+      --border:rgba(236,72,153,0.2); --border-med:rgba(236,72,153,0.35);
+      --text:#f0e8f5; --text2:#d4c0dc; --text3:#b898a8; --muted:#8b7298;
+      body{background:#0f0f18;color:#f0e8f5;}
+      .nav{background:rgba(15,15,24,0.92);border-bottom-color:var(--border);}
+      .modal{background:#1e1e37;}
+      .msg-card{background:#1e1e37;}
+      .notif-panel{background:#1e1e37;}
+      input,textarea,select{background:#1a1a2e;}
+      .upload-zone{background:rgba(236,72,153,0.05);}
+    }
+  }
+  [data-theme=dark]{
+    --bg:#0f0f18; --bg2:#1a1a2e; --bg3:#252540;
+    --card:rgba(30,30,55,0.85); --card-solid:#1e1e37;
+    --border:rgba(236,72,153,0.2); --border-med:rgba(236,72,153,0.35);
+    --text:#f0e8f5; --text2:#d4c0dc; --text3:#b898a8; --muted:#8b7298;
+    body{background:#0f0f18;color:#f0e8f5;}
+    .nav{background:rgba(15,15,24,0.92);border-bottom-color:var(--border);}
+    .modal{background:#1e1e37;}
+    .msg-card{background:#1e1e37;}
+    .notif-panel{background:#1e1e37;}
+    input,textarea,select{background:#1a1a2e;}
+    .upload-zone{background:rgba(236,72,153,0.05);}
+  }
+  [data-theme=light]{
+    --bg:#fff5f8; --bg2:#ffeef4; --bg3:#ffe4ef;
+    --card:rgba(255,255,255,0.82); --card-solid:#ffffff;
+    --border:rgba(236,72,153,0.15); --border-med:rgba(236,72,153,0.28);
+    --text:#4a1942; --text2:#7e3a72; --text3:#b06fa0; --muted:#c9a0bc;
+    body{background:#fff5f8;color:#4a1942;}
+    .nav{background:rgba(255,245,248,0.92);border-bottom-color:var(--border);}
+    .modal{background:#fff;}
+    .msg-card{background:#ffffff;}
+    .notif-panel{background:#fff;}
+    input,textarea,select{background:#fff5f8;}
+    .upload-zone{background:rgba(236,72,153,0.03);}
+  }
 `;
 
 // ─── SPARKLES DECORATION ─────────────────────────────────────────────────────
@@ -828,6 +870,20 @@ export default function App() {
   const [notifications,setNotifications]=useState(["Samuel requested to download Golden Hour","Meron Alemu left a message for you","Abel requested Cherry Blossoms"]);
   const {toasts,push:toast}=useToast();
   const [loaded,setLoaded]=useState(false);
+  const [theme,setTheme]=useState(()=>{
+    const stored=localStorage.getItem("lum:theme");
+    if(stored) return stored;
+    if(typeof window!=="undefined" && window.matchMedia("(prefers-color-scheme:dark)").matches) return "dark";
+    return "light";
+  });
+  const toggleTheme=useCallback(()=>{
+    const next=theme==="dark"?"light":"dark";
+    setTheme(next);
+    localStorage.setItem("lum:theme",next);
+  },[theme]);
+  useEffect(()=>{
+    document.documentElement.setAttribute("data-theme",theme);
+  },[theme]);
 
   useEffect(()=>{(async()=>{
     const [ph,al,rq,ms,lk]=await Promise.all([dbGet(SK.photos),dbGet(SK.albums),dbGet(SK.requests),dbGet(SK.messages),dbGet(SK.likes)]);
@@ -870,6 +926,9 @@ export default function App() {
       <nav className="nav">
         <div className="nav-logo" onClick={()=>setPage("gallery")}>🌸 <span>Luminary</span></div>
         <div style={{display:"flex",gap:"0.75rem",alignItems:"center"}}>
+          <button className="btn btn-ghost btn-icon" onClick={toggleTheme} aria-label="Toggle theme" title={`Switch to ${theme==="dark"?"light":"dark"} mode`}>
+            {theme==="dark"?"☀":"🌙"}
+          </button>
           {page==="gallery"&&<>
             <button className="btn btn-ghost btn-sm" onClick={()=>document.querySelector("#gallery-anchor")?.scrollIntoView({behavior:"smooth"})}>Archive</button>
             <button className="btn btn-ghost btn-sm" onClick={()=>setPage("login")}>Owner Portal</button>
@@ -891,4 +950,4 @@ export default function App() {
       <Toasts toasts={toasts} />
     </>
   );
-}
+} 
