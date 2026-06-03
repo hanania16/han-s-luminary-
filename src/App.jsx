@@ -1,27 +1,27 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useNavigate, Routes, Route, useLocation } from "react-router-dom";
 
 // ─── STORAGE ──────────────────────────────────────────────────────────────────
 const SK = { photos:"lum:photos", albums:"lum:albums", requests:"lum:requests", messages:"lum:messages", likes:"lum:likes" };
-async function dbGet(k){try{const r=await window.storage.get(k);return r?JSON.parse(r.value):null;}catch{return null;}}
-async function dbSet(k,v){try{await window.storage.set(k,JSON.stringify(v));}catch{}}
+async function dbGet(k){try{const r=await window.storage.get(k);return r?JSON.parse(r.value):null;}catch{try{const r=localStorage.getItem(k);return r?JSON.parse(r):null;}catch{return null;}}}
+async function dbSet(k,v){const s=JSON.stringify(v);try{await window.storage.set(k,s);}catch{}try{localStorage.setItem(k,s);}catch{}}
 
 // ─── SEED DATA ────────────────────────────────────────────────────────────────
 const SEED_PHOTOS = [
   { id:"p1", title:"Golden Hour",      album:"a1", url:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800", thumb:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400", date:"2024-06-15", tags:["nature","sunset"],  likes:12 },
   { id:"p2", title:"City Lights",      album:"a1", url:"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800", thumb:"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400", date:"2024-07-20", tags:["city","night"],    likes:8  },
-  { id:"p3", title:"Morning Fog",      album:"a2", url:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800", thumb:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400", date:"2024-08-01", tags:["mountain","fog"],  likes:23 },
+  { id:"p3", title:"Morning Fog",      album:"a1", url:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800", thumb:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400", date:"2024-08-01", tags:["mountain","fog"],  likes:23 },
   { id:"p4", title:"Ocean Calm",       album:"a2", url:"https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=800", thumb:"https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=400", date:"2024-09-10", tags:["ocean","calm"],    likes:15 },
-  { id:"p5", title:"Forest Path",      album:"a3", url:"https://images.unsplash.com/photo-1448375240586-882707db888b?w=800", thumb:"https://images.unsplash.com/photo-1448375240586-882707db888b?w=400", date:"2024-10-05", tags:["forest","path"],   likes:19 },
-  { id:"p6", title:"Desert Dunes",     album:"a3", url:"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800", thumb:"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=400", date:"2024-11-12", tags:["desert","travel"],  likes:31 },
-  { id:"p7", title:"Starry Night",     album:"a1", url:"https://images.unsplash.com/photo-1464802686167-b939a6910659?w=800", thumb:"https://images.unsplash.com/photo-1464802686167-b939a6910659?w=400", date:"2024-12-01", tags:["stars","night"],   likes:44 },
-  { id:"p8", title:"Cherry Blossoms",  album:"a4", url:"https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=800", thumb:"https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400", date:"2025-03-20", tags:["spring","japan"],   likes:56 },
-  { id:"p9", title:"Rainy Window",     album:"a4", url:"https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=800", thumb:"https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=400", date:"2025-01-08", tags:["rain","moody"],    likes:27 },
+  { id:"p5", title:"Forest Path",      album:"a2", url:"https://images.unsplash.com/photo-1448375240586-882707db888b?w=800", thumb:"https://images.unsplash.com/photo-1448375240586-882707db888b?w=400", date:"2024-10-05", tags:["forest","path"],   likes:19 },
+  { id:"p6", title:"Desert Dunes",     album:"a2", url:"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800", thumb:"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=400", date:"2024-11-12", tags:["desert","travel"],  likes:31 },
+  { id:"p7", title:"Starry Night",     album:"a3", url:"https://images.unsplash.com/photo-1464802686167-b939a6910659?w=800", thumb:"https://images.unsplash.com/photo-1464802686167-b939a6910659?w=400", date:"2024-12-01", tags:["stars","night"],   likes:44 },
+  { id:"p8", title:"Cherry Blossoms",  album:"a3", url:"https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=800", thumb:"https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400", date:"2025-03-20", tags:["spring","japan"],   likes:56 },
+  { id:"p9", title:"Rainy Window",     album:"a3", url:"https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=800", thumb:"https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=400", date:"2025-01-08", tags:["rain","moody"],    likes:27 },
 ];
 const SEED_ALBUMS = [
-  { id:"a1", name:"Cosmos & Cities",  cover:"https://images.unsplash.com/photo-1464802686167-b939a6910659?w=400", count:3 },
-  { id:"a2", name:"Wild Horizons",    cover:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400", count:2 },
-  { id:"a3", name:"Earth's Palette",  cover:"https://images.unsplash.com/photo-1448375240586-882707db888b?w=400", count:2 },
-  { id:"a4", name:"Quiet Moments",    cover:"https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400", count:2 },
+  { id:"a1", name:"Me as a Kid",       cover:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400", count:3 },
+  { id:"a2", name:"My Friends & Me",   cover:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400", count:3 },
+  { id:"a3", name:"Only Me",           cover:"https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=400", count:3 },
 ];
 const SEED_REQUESTS = [
   { id:"r1", photoId:"p1", photoTitle:"Golden Hour",     name:"Samuel Tesfaye", from:"University friend",   message:"Han, you helped me through my first year at university. This photo reminds me of the evenings we'd study together. You were always the calm I needed.", social:"@samuelT", status:"pending",  date:"2025-06-01T14:32:00Z" },
@@ -342,8 +342,8 @@ select option { background:#fff; }
 ::-webkit-scrollbar-thumb { background:rgba(236,72,153,0.25); border-radius:3px; }
 
 /* ── LOGIN ── */
-  .login-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem; background:var(--bg); position:relative; overflow:hidden; }
-  .login-card { width:100%; max-width:400px; background:rgba(255,255,255,0.92); backdrop-filter:blur(20px); border:1.5px solid var(--border-med); border-radius:28px; padding:2.5rem; position:relative; z-index:1; box-shadow:0 20px 60px rgba(236,72,153,0.15); }
+  .login-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem; background:#000; position:relative; overflow:hidden; }
+  .login-card { width:100%; max-width:400px; background:rgba(20,20,35,0.95); backdrop-filter:blur(20px); border:1.5px solid var(--border-med); border-radius:28px; padding:2.5rem; position:relative; z-index:1; box-shadow:0 20px 60px rgba(236,72,153,0.15); }
 
 @media(prefers-color-scheme:dark){
   :root:not([data-theme=light]){
@@ -573,7 +573,7 @@ function ReqDetailModal({ req, photo, onClose, onApprove, onReject }) {
 }
 
 // ─── GALLERY PAGE ─────────────────────────────────────────────────────────────
-function GalleryPage({ photos, albums, requests, messages, onRequestDownload, likes, onLike, selectedAlbum, setSelectedAlbum, onLogin }) {
+function GalleryPage({ photos, albums, requests, messages, onRequestDownload, likes, onLike, selectedAlbum, setSelectedAlbum }) {
   const [lightbox, setLightbox] = useState(null);
   const [reqModal, setReqModal] = useState(null);
   const [search, setSearch] = useState("");
@@ -585,7 +585,7 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
   );
   const isApproved = pid => { const r=requests.find(r=>r.photoId===pid&&r.status==="approved"); return r&&!isExpired(r.expiresAt); };
   const handleSave = photo => { if(isApproved(photo.id)){const a=document.createElement("a");a.href=photo.url;a.download=photo.title;a.click();}else{setReqModal(photo);} };
-  const handleRequest = data => { onRequestDownload(data); setSent(s=>({...s,[data.photoId]:true})); setReqModal(null); };
+  const handleRequest = data => { onRequestDownload(data); setSent(s=>({...s,[data.photoId]:true})); };
 
   return (
     <>
@@ -607,7 +607,6 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
           <button className="btn btn-primary" onClick={()=>document.getElementById("gallery-anchor")?.scrollIntoView({behavior:"smooth"})}>
             🌸 Browse Archive
           </button>
-          <button className="btn btn-ghost" onClick={onLogin}>Owner Portal</button>
         </div>
         <div className="hero-stats">
           {[["Photos",photos.length],["Albums",albums.length],["Messages",messages.length+" shared"]].map(([l,v])=>(
@@ -713,10 +712,10 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
 // ─── LOGIN ────────────────────────────────────────────────────────────────────
 function LoginPage({ onLogin }) {
   const [pw,setPw]=useState(""); const [err,setErr]=useState(""); const [loading,setLoading]=useState(false);
-  const submit=async()=>{setLoading(true);await new Promise(r=>setTimeout(r,600));if(pw==="luminary2025"){onLogin();}else{setErr("Incorrect password.");setLoading(false);}};
+  const submit=async()=>{setLoading(true);await new Promise(r=>setTimeout(r,600));if(pw==="lemlemMeseret"){onLogin();}else{setErr("Incorrect password.");setLoading(false);}};
   return (
     <div className="login-wrap">
-      <div className="hero-mesh" style={{position:"absolute",inset:0}} />
+      <div className="hero-mesh" style={{position:"absolute",inset:0,opacity:0.4}} />
       <FloatingPhotos photos={SEED_PHOTOS} />
       <div className="login-card">
         <div style={{textAlign:"center",marginBottom:"2rem"}}>
@@ -727,7 +726,6 @@ function LoginPage({ onLogin }) {
         <div className="inp-group"><label>Password</label><input type="password" placeholder="Enter your password" value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()} /></div>
         {err&&<p style={{color:"#be123c",fontSize:"0.82rem",marginBottom:"0.75rem"}}>{err}</p>}
         <button className="btn btn-primary w-full" onClick={submit} disabled={loading}>{loading?<><div className="spinner"/>Verifying…</>:"Enter Archive 🌸"}</button>
-        <p style={{textAlign:"center",fontSize:"0.76rem",color:"var(--muted)",marginTop:"1rem"}}>Demo password: luminary2025</p>
       </div>
     </div>
   );
@@ -926,16 +924,16 @@ export default function App() {
   const [requests,setRequests]=useState(SEED_REQUESTS);
   const [messages,setMessages]=useState(SEED_MESSAGES);
   const [likes,setLikes]=useState({});
-  const [page,setPage]=useState("gallery");
   const [selectedAlbum,setSelectedAlbum]=useState(null);
   const [notifications,setNotifications]=useState(["Samuel requested to download Golden Hour","Meron Alemu left a message for you","Abel requested Cherry Blossoms"]);
   const {toasts,push:toast}=useToast();
   const [loaded,setLoaded]=useState(false);
+  const navigate=useNavigate();
+  const location=useLocation();
   const [theme,setTheme]=useState(()=>{
     const stored=localStorage.getItem("lum:theme");
     if(stored) return stored;
-    if(typeof window!=="undefined" && window.matchMedia("(prefers-color-scheme:dark)").matches) return "dark";
-    return "light";
+    return "dark";
   });
   const toggleTheme=useCallback(()=>{
     const next=theme==="dark"?"light":"dark";
@@ -960,8 +958,17 @@ export default function App() {
 
   const handleRequestDownload=data=>{
     const id="r"+Date.now();
-    setRequests(r=>[{id,photoId:data.photoId,photoTitle:data.photoTitle,name:data.name,from:data.from,message:data.message,social:data.social||"",status:"pending",date:new Date().toISOString()},...r]);
-    setMessages(m=>[{id:"m"+Date.now(),name:data.name,text:data.message,from:data.from,date:new Date().toISOString().slice(0,10)},...m]);
+    const newReq={id,photoId:data.photoId,photoTitle:data.photoTitle,name:data.name,from:data.from,message:data.message,social:data.social||"",status:"pending",date:new Date().toISOString()};
+    setRequests(r=>{
+      const updated=[newReq,...r];
+      dbSet(SK.requests,updated);
+      return updated;
+    });
+    setMessages(m=>{
+      const updated=[{id:"m"+Date.now(),name:data.name,text:data.message,from:data.from,date:new Date().toISOString().slice(0,10)},...m];
+      dbSet(SK.messages,updated);
+      return updated;
+    });
     setNotifications(n=>[`${data.name} requested to save "${data.photoTitle}"`,...n]);
   };
   const handleApprove=id=>{
@@ -980,32 +987,37 @@ export default function App() {
   const handleAddAlbum=name=>{setAlbums(a=>[...a,{id:"a"+Date.now(),name,cover:"https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400",count:0}]);toast(`Album "${name}" created 🌸`,"success");};
   const handleLike=id=>setLikes(l=>({...l,[id]:!l[id]}));
 
+  const isGallery=location.pathname==="/";
+  const isLogin=location.pathname==="/login";
+  const isDashboard=location.pathname==="/dashboard";
+
   return (
     <>
       <style>{FONTS}{CSS}</style>
 
       <nav className="nav">
-        <div className="nav-logo" onClick={()=>setPage("gallery")}>🌸 <span>Luminary</span></div>
+        <div className="nav-logo" onClick={()=>navigate("/")}>🌸 <span>Luminary</span></div>
         <div style={{display:"flex",gap:"0.75rem",alignItems:"center"}}>
           <button className="btn btn-ghost btn-icon" onClick={toggleTheme} aria-label="Toggle theme" title={`Switch to ${theme==="dark"?"light":"dark"} mode`}>
             {theme==="dark"?"☀":"🌙"}
           </button>
-          {page==="gallery"&&<>
+          {isGallery&&<>
             <button className="btn btn-ghost btn-sm" onClick={()=>document.querySelector("#gallery-anchor")?.scrollIntoView({behavior:"smooth"})}>Archive</button>
-            <button className="btn btn-ghost btn-sm" onClick={()=>setPage("login")}>Owner Portal</button>
           </>}
-          {page==="dashboard"&&<>
+          {isDashboard&&<>
             <span style={{fontSize:"0.82rem",color:"var(--muted)"}}>Owner Dashboard</span>
-            <button className="btn btn-ghost btn-sm" onClick={()=>setPage("gallery")}>← Gallery</button>
+            <button className="btn btn-ghost btn-sm" onClick={()=>navigate("/")}>← Gallery</button>
           </>}
-          {page==="login"&&<button className="btn btn-ghost btn-sm" onClick={()=>setPage("gallery")}>← Gallery</button>}
+          {isLogin&&<button className="btn btn-ghost btn-sm" onClick={()=>navigate("/")}>← Gallery</button>}
         </div>
       </nav>
 
       <main>
-        {page==="gallery"&&<GalleryPage photos={photos} albums={albums} requests={requests} messages={messages} onRequestDownload={handleRequestDownload} likes={likes} onLike={handleLike} selectedAlbum={selectedAlbum} setSelectedAlbum={setSelectedAlbum} onLogin={()=>setPage("login")} />}
-        {page==="login"&&<LoginPage onLogin={()=>setPage("dashboard")} />}
-        {page==="dashboard"&&<Dashboard photos={photos} albums={albums} requests={requests} messages={messages} notifications={notifications} onLogout={()=>setPage("gallery")} onApprove={handleApprove} onReject={handleReject} onUpload={handleUpload} onDeletePhoto={handleDeletePhoto} onAddAlbum={handleAddAlbum} />}
+        <Routes>
+          <Route path="/" element={<GalleryPage photos={photos} albums={albums} requests={requests} messages={messages} onRequestDownload={handleRequestDownload} likes={likes} onLike={handleLike} selectedAlbum={selectedAlbum} setSelectedAlbum={setSelectedAlbum} />} />
+          <Route path="/login" element={<LoginPage onLogin={()=>navigate("/dashboard")} />} />
+          <Route path="/dashboard" element={<Dashboard photos={photos} albums={albums} requests={requests} messages={messages} notifications={notifications} onLogout={()=>navigate("/")} onApprove={handleApprove} onReject={handleReject} onUpload={handleUpload} onDeletePhoto={handleDeletePhoto} onAddAlbum={handleAddAlbum} />} />
+        </Routes>
       </main>
 
       <Toasts toasts={toasts} />
