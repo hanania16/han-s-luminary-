@@ -182,7 +182,7 @@ body { background:var(--bg); color:var(--text); font-family:'Nunito',sans-serif;
     radial-gradient(ellipse 50% 60% at 10% 80%, rgba(251,207,232,0.5)  0%, transparent 55%),
     radial-gradient(ellipse 70% 50% at 90% 75%, rgba(249,168,212,0.4)  0%, transparent 60%),
     radial-gradient(ellipse 40% 40% at 50% 50%, rgba(255,228,230,0.3)  0%, transparent 70%);
-  background-color:#fff5f8;
+  background-color:var(--bg);
 }
 
 .hero-eyebrow {
@@ -218,6 +218,22 @@ body { background:var(--bg); color:var(--text); font-family:'Nunito',sans-serif;
 .photo-tile:hover img { transform:scale(1.05); }
 .photo-overlay { position:absolute; inset:0; background:linear-gradient(to top,rgba(74,25,66,0.85) 0%,transparent 55%); opacity:0; transition:opacity 0.3s; display:flex; align-items:flex-end; padding:1rem; }
 .photo-tile:hover .photo-overlay { opacity:1; }
+
+  [data-theme=dark] .photo-overlay {
+    background: linear-gradient(to top, rgba(30,30,55,0.95) 0%, transparent 55%);
+  }
+  [data-theme=dark] .album-overlay {
+    background: linear-gradient(to top, rgba(30,30,55,0.92) 0%, rgba(30,30,55,0.25) 55%, transparent);
+  }
+  [data-theme=dark] .hero-stat-num { color:var(--pink); }
+  [data-theme=dark] .hero-mesh {
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 20%, rgba(236,72,153,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 15%, rgba(192,132,252,0.22) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 60% at 10% 80%, rgba(236,72,153,0.15) 0%, transparent 55%),
+      radial-gradient(ellipse 70% 50% at 90% 75%, rgba(192,132,252,0.15) 0%, transparent 60%);
+    background-color:var(--bg);
+  }
 
 /* ── ALBUMS ── */
 .album-card { position:relative; border-radius:var(--radius); overflow:hidden; aspect-ratio:4/3; cursor:pointer; transition:transform 0.3s; }
@@ -308,22 +324,8 @@ select option { background:#fff; }
   .login-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem; background:var(--bg); position:relative; overflow:hidden; }
   .login-card { width:100%; max-width:400px; background:rgba(255,255,255,0.92); backdrop-filter:blur(20px); border:1.5px solid var(--border-med); border-radius:28px; padding:2.5rem; position:relative; z-index:1; box-shadow:0 20px 60px rgba(236,72,153,0.15); }
 
-  @media(prefers-color-scheme:dark){
-    :root:not([data-theme=light]){
-      --bg:#0f0f18; --bg2:#1a1a2e; --bg3:#252540;
-      --card:rgba(30,30,55,0.85); --card-solid:#1e1e37;
-      --border:rgba(236,72,153,0.2); --border-med:rgba(236,72,153,0.35);
-      --text:#f0e8f5; --text2:#d4c0dc; --text3:#b898a8; --muted:#8b7298;
-      body{background:#0f0f18;color:#f0e8f5;}
-      .nav{background:rgba(15,15,24,0.92);border-bottom-color:var(--border);}
-      .modal{background:#1e1e37;}
-      .msg-card{background:#1e1e37;}
-      .notif-panel{background:#1e1e37;}
-      input,textarea,select{background:#1a1a2e;}
-      .upload-zone{background:rgba(236,72,153,0.05);}
-    }
-  }
-  [data-theme=dark]{
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme=light]){
     --bg:#0f0f18; --bg2:#1a1a2e; --bg3:#252540;
     --card:rgba(30,30,55,0.85); --card-solid:#1e1e37;
     --border:rgba(236,72,153,0.2); --border-med:rgba(236,72,153,0.35);
@@ -335,20 +337,57 @@ select option { background:#fff; }
     .notif-panel{background:#1e1e37;}
     input,textarea,select{background:#1a1a2e;}
     .upload-zone{background:rgba(236,72,153,0.05);}
+    .hero-mesh {
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 20%, rgba(236,72,153,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 15%, rgba(192,132,252,0.22) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 60% at 10% 80%, rgba(236,72,153,0.15) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 50% at 90% 75%, rgba(192,132,252,0.15) 0%, transparent 60%);
+      background-color:var(--bg);
+    }
   }
-  [data-theme=light]{
-    --bg:#fff5f8; --bg2:#ffeef4; --bg3:#ffe4ef;
-    --card:rgba(255,255,255,0.82); --card-solid:#ffffff;
-    --border:rgba(236,72,153,0.15); --border-med:rgba(236,72,153,0.28);
-    --text:#4a1942; --text2:#7e3a72; --text3:#b06fa0; --muted:#c9a0bc;
-    body{background:#fff5f8;color:#4a1942;}
-    .nav{background:rgba(255,245,248,0.92);border-bottom-color:var(--border);}
-    .modal{background:#fff;}
-    .msg-card{background:#ffffff;}
-    .notif-panel{background:#fff;}
-    input,textarea,select{background:#fff5f8;}
-    .upload-zone{background:rgba(236,72,153,0.03);}
+}
+[data-theme=dark]{
+  --bg:#0f0f18; --bg2:#1a1a2e; --bg3:#252540;
+  --card:rgba(30,30,55,0.85); --card-solid:#1e1e37;
+  --border:rgba(236,72,153,0.2); --border-med:rgba(236,72,153,0.35);
+  --text:#f0e8f5; --text2:#d4c0dc; --text3:#b898a8; --muted:#8b7298;
+  body{background:#0f0f18;color:#f0e8f5;}
+  .nav{background:rgba(15,15,24,0.92);border-bottom-color:var(--border);}
+  .modal{background:#1e1e37;}
+  .msg-card{background:#1e1e37;}
+  .notif-panel{background:#1e1e37;}
+  input,textarea,select{background:#1a1a2e;}
+  .upload-zone{background:rgba(236,72,153,0.05);}
+  .hero-mesh {
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 20%, rgba(236,72,153,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 15%, rgba(192,132,252,0.22) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 60% at 10% 80%, rgba(236,72,153,0.15) 0%, transparent 55%),
+      radial-gradient(ellipse 70% 50% at 90% 75%, rgba(192,132,252,0.15) 0%, transparent 60%);
+    background-color:var(--bg);
   }
+  .photo-overlay {
+    background: linear-gradient(to top, rgba(30,30,55,0.95) 0%, transparent 55%);
+  }
+  .album-overlay {
+    background: linear-gradient(to top, rgba(30,30,55,0.92) 0%, rgba(30,30,55,0.25) 55%, transparent);
+  }
+  .hero-stat-num { color:var(--pink); }
+}
+[data-theme=light]{
+  --bg:#fff5f8; --bg2:#ffeef4; --bg3:#ffe4ef;
+  --card:rgba(255,255,255,0.82); --card-solid:#ffffff;
+  --border:rgba(236,72,153,0.15); --border-med:rgba(236,72,153,0.28);
+  --text:#4a1942; --text2:#7e3a72; --text3:#b06fa0; --muted:#c9a0bc;
+  body{background:#fff5f8;color:#4a1942;}
+  .nav{background:rgba(255,245,248,0.92);border-bottom-color:var(--border);}
+  .modal{background:#fff;}
+  .msg-card{background:#ffffff;}
+  .notif-panel{background:#fff;}
+  input,textarea,select{background:#fff5f8;}
+  .upload-zone{background:rgba(236,72,153,0.03);}
+}
 `;
 
 // ─── SPARKLES DECORATION ─────────────────────────────────────────────────────
