@@ -121,8 +121,8 @@ app.delete("/api/photos/:id", async (req, res) => {
       },
     });
 
-    if (photo.stored && photo.url.startsWith("/uploads/")) {
-      const filePath = join(UPLOAD_DIR, photo.url.replace("/uploads/", ""));
+    if (photo.stored && (photo.url.startsWith("/uploads/") || photo.url.startsWith("/api/uploads/"))) {
+      const filePath = join(UPLOAD_DIR, photo.url.split("/").pop());
       if (existsSync(filePath)) unlinkSync(filePath);
     }
 
