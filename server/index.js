@@ -173,16 +173,20 @@ app.get("/api/requests", async (req, res) => {
 
 app.post("/api/requests", async (req, res) => {
   try {
-    const { photoId, photoTitle, name, from, message, social } = req.body;
-    if (!photoId || !name || !from || !message) {
+    const { photoIds, photoTitles, photoId, photoTitle, name, from, message, social } = req.body;
+    const ids = photoIds || (photoId ? [photoId] : []);
+    const titles = photoTitles || (photoTitle ? [photoTitle] : []);
+    if (!ids.length || !name || !from || !message) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
     const request = await prisma.request.create({
       data: {
         id: "r" + Date.now(),
-        photoId,
-        photoTitle,
+        photoId: ids[0],
+        photoTitle: titles[0],
+        photoIds: ids,
+        photoTitles: titles,
         name,
         from,
         message,

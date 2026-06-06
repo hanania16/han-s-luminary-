@@ -32,6 +32,8 @@ model Request {
   id         String    @id
   photoId    String
   photoTitle String
+  photoIds   String[]  @default([])
+  photoTitles String[] @default([])
   name       String
   from       String
   message    String

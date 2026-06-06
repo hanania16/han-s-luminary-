@@ -187,7 +187,7 @@ body { background:var(--bg); color:var(--text); font-family:'Nunito',sans-serif;
 }
 .hero-title em { font-style:italic; color:var(--pink); }
 .hero-title .soft { color:var(--lilac); }
-.hero-subtitle { font-size:1.05rem; color:var(--text2); max-width:480px; line-height:1.75; margin-bottom:2.5rem; animation:fadeUp 0.9s ease 0.15s both; position:relative; z-index:1; }
+.hero-subtitle { font-size:1.2rem; color:var(--text2); max-width:560px; line-height:1.75; margin-bottom:2.5rem; animation:fadeUp 0.9s ease 0.15s both; position:relative; z-index:1; font-weight:500; }
 .hero-actions { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; animation:fadeUp 0.9s ease 0.3s both; position:relative; z-index:1; }
 
 .hero-stats { display:flex; gap:1.25rem; margin-top:3.5rem; animation:fadeUp 0.9s ease 0.45s both; position:relative; z-index:1; }
@@ -199,9 +199,11 @@ body { background:var(--bg); color:var(--text); font-family:'Nunito',sans-serif;
 .sparkle { position:absolute; border-radius:50%; animation:sparkle 3s ease-in-out infinite; }
 
 /* ── MASONRY ── */
-.masonry { columns:3; gap:1rem; column-fill:balance; }
-@media(max-width:900px){.masonry{columns:2;}}
-@media(max-width:550px){.masonry{columns:1;}}
+.masonry { columns:5; gap:0.75rem; column-fill:balance; }
+@media(max-width:1200px){.masonry{columns:4;}}
+@media(max-width:900px){.masonry{columns:3;}}
+@media(max-width:600px){.masonry{columns:2;}}
+@media(max-width:400px){.masonry{columns:1;}}
 
 .photo-tile { break-inside:avoid; margin-bottom:1rem; position:relative; border-radius:var(--radius-sm); overflow:hidden; cursor:pointer; }
 .photo-tile img { width:100%; display:block; transition:transform 0.5s ease; }
@@ -232,7 +234,7 @@ body { background:var(--bg); color:var(--text); font-family:'Nunito',sans-serif;
 .album-overlay { position:absolute; inset:0; background:linear-gradient(to top,rgba(74,25,66,0.8) 0%,rgba(74,25,66,0.1) 60%,transparent); padding:1.25rem; display:flex; flex-direction:column; justify-content:flex-end; }
 
 /* ── SECTION ── */
-.section { padding:5rem 2rem; max-width:1200px; margin:0 auto; }
+.section { padding:5rem 4rem; }
 .section-title { font-family:'Playfair Display',serif; font-size:2.6rem; font-weight:700; color:var(--text); margin-bottom:0.4rem; }
 .section-title em { font-style:italic; color:var(--pink); }
 .section-sub { color:var(--text3); margin-bottom:2.5rem; font-size:0.95rem; }
@@ -267,7 +269,6 @@ body { background:var(--bg); color:var(--text); font-family:'Nunito',sans-serif;
   .hamburger { display:inline-flex; align-items:center; justify-content:center; }
 }
 
-/* ── STATS ── */
 .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:1rem; }
 .stat-card { background:var(--card-solid); border:1px solid var(--border); border-radius:var(--radius); padding:1.25rem; position:relative; overflow:hidden; }
 .stat-card::after { content:''; position:absolute; top:-20px; right:-20px; width:80px; height:80px; border-radius:50%; background:radial-gradient(circle,rgba(236,72,153,0.12),transparent 70%); }
@@ -464,10 +465,11 @@ function Lightbox({ photo, onClose, onSave, approved }) {
   );
 }
 
-function PhotoTile({ photo, onClick, onSave, liked, onLike, approved }) {
+function PhotoTile({ photo, onClick, onSave, liked, onLike, approved, selectable, selected, onToggle }) {
   return (
-    <div className="photo-tile" onClick={()=>onClick(photo)}>
+    <div className="photo-tile" onClick={()=>selectable ? onToggle(photo.id) : onClick(photo)} style={{cursor:selectable?"pointer":void 0}}>
       <img src={photo.thumb} alt={photo.title} loading="lazy" />
+      {selectable && <div style={{position:"absolute",top:8,left:8,width:24,height:24,borderRadius:6,border:"2px solid rgba(255,255,255,0.7)",background:selected?"var(--pink)":"rgba(0,0,0,0.3)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.75rem",color:"#fff",fontWeight:700,transition:"all 0.15s",zIndex:2}}>{selected?"✓":""}</div>}
       <div className="photo-overlay">
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",width:"100%"}}>
           <div>
@@ -475,7 +477,7 @@ function PhotoTile({ photo, onClick, onSave, liked, onLike, approved }) {
             <p style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.6)"}}>{photo.date}</p>
           </div>
           <div style={{display:"flex",gap:"0.4rem"}} onClick={e=>e.stopPropagation()}>
-            <button className="btn btn-ghost btn-icon btn-sm" onClick={()=>onLike(photo.id)}
+            <button className="btn btn-ghost btn-icon btn-sm" onClick={()=>{if(selectable)onToggle(photo.id);else onLike(photo.id)}}
               style={{color:liked?"#fb7185":"rgba(255,255,255,0.7)",borderColor:liked?"rgba(251,113,133,0.5)":"rgba(255,255,255,0.25)",animation:liked?"heartPop 0.3s ease":"none"}}>
               {liked?"♥":"♡"}
             </button>
@@ -516,27 +518,34 @@ function UploadModal({ albums, onClose, onUpload }) {
   );
 }
 
-function ReqDetailModal({ req, photo, onClose, onApprove, onReject }) {
+function ReqDetailModal({ req, photos: allPhotos, onClose, onApprove, onReject }) {
+  const reqPhotos = allPhotos.filter(p => req.photoId===p.id || (req.photoIds||[]).includes(p.id));
   return (
     <div className="modal-backdrop" onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div className="modal modal-lg" style={{padding:"2rem"}}>
         <div className="flex-between" style={{marginBottom:"1.5rem"}}><h3 style={{fontFamily:"'Playfair Display',serif",fontWeight:700,fontSize:"1.3rem"}}>Request Details</h3><button className="btn btn-ghost btn-icon btn-sm" onClick={onClose}>✕</button></div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1.6fr",gap:"1.5rem"}}>
-          {photo&&<div style={{borderRadius:"12px",overflow:"hidden",aspectRatio:"4/3"}}><img src={photo.thumb} alt={photo.title} style={{width:"100%",height:"100%",objectFit:"cover"}}/></div>}
-          <div>
-            <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginBottom:"1rem"}}>
-              <div style={{width:42,height:42,borderRadius:"50%",background:"rgba(236,72,153,0.12)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Playfair Display',serif",fontSize:"1rem",color:"var(--pink-dark)",fontWeight:700}}>{req.name.split(" ").map(n=>n[0]).join("").slice(0,2)}</div>
-              <div><p style={{fontWeight:600,color:"var(--text)"}}>{req.name}</p><p style={{fontSize:"0.78rem",color:"var(--muted)"}}>{req.from}</p></div>
-              <span className={`tag tag-${req.status}`} style={{marginLeft:"auto"}}>{req.status}</span>
-            </div>
-            <div style={{background:"rgba(236,72,153,0.04)",border:"1px solid var(--border)",borderRadius:"12px",padding:"1rem",marginBottom:"0.75rem"}}>
-              <p style={{fontFamily:"'Playfair Display',serif",fontSize:"1rem",fontStyle:"italic",color:"var(--text)",lineHeight:1.75}}>"{req.message}"</p>
-            </div>
-            {req.social&&<p style={{fontSize:"0.8rem",color:"var(--muted)",marginBottom:"0.4rem"}}>Social: <span style={{color:"var(--pink-dark)"}}>{req.social}</span></p>}
-            <p style={{fontSize:"0.78rem",color:"var(--muted)"}}>Requested {timeAgo(req.date)} · {req.photoTitle}</p>
-            {req.status==="approved"&&req.expiresAt&&<p style={{fontSize:"0.78rem",color:isExpired(req.expiresAt)?"#be123c":"#0f766e",marginTop:"0.3rem"}}>⏱ {formatExpiry(req.expiresAt)}</p>}
+        <div className="flex-between" style={{marginBottom:"0.75rem"}}>
+          <div style={{display:"flex",alignItems:"center",gap:"0.75rem"}}>
+            <div style={{width:42,height:42,borderRadius:"50%",background:"rgba(236,72,153,0.12)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Playfair Display',serif",fontSize:"1rem",color:"var(--pink-dark)",fontWeight:700}}>{req.name.split(" ").map(n=>n[0]).join("").slice(0,2)}</div>
+            <div><p style={{fontWeight:600,color:"var(--text)"}}>{req.name}</p><p style={{fontSize:"0.78rem",color:"var(--muted)"}}>{req.from}</p></div>
+            <span className={`tag tag-${req.status}`} style={{marginLeft:"auto"}}>{req.status}</span>
           </div>
+          <span style={{fontSize:"0.78rem",color:"var(--muted)"}}>{reqPhotos.length} photo{reqPhotos.length!==1?"s":""}</span>
         </div>
+        {reqPhotos.length > 0 && (
+          <div style={{display:"flex",gap:"0.4rem",overflowX:"auto",paddingBottom:"0.5rem",marginBottom:"1rem"}}>
+            {reqPhotos.map(p=>(
+              <img key={p.id} src={p.thumb} alt={p.title} style={{width:72,height:72,borderRadius:"10px",objectFit:"cover",flexShrink:0}} title={p.title} />
+            ))}
+            {reqPhotos.length===0 && <p style={{fontSize:"0.8rem",color:"var(--muted)"}}>Photos may have been deleted</p>}
+          </div>
+        )}
+        <div style={{background:"rgba(236,72,153,0.04)",border:"1px solid var(--border)",borderRadius:"12px",padding:"1rem",marginBottom:"0.75rem"}}>
+          <p style={{fontFamily:"'Playfair Display',serif",fontSize:"1rem",fontStyle:"italic",color:"var(--text)",lineHeight:1.75}}>"{req.message}"</p>
+        </div>
+        {req.social&&<p style={{fontSize:"0.8rem",color:"var(--muted)",marginBottom:"0.4rem"}}>Social: <span style={{color:"var(--pink-dark)"}}>{req.social}</span></p>}
+        <p style={{fontSize:"0.78rem",color:"var(--muted)"}}>Requested {timeAgo(req.date)}</p>
+        {req.status==="approved"&&req.expiresAt&&<p style={{fontSize:"0.78rem",color:isExpired(req.expiresAt)?"#be123c":"#0f766e",marginTop:"0.3rem"}}>⏱ {formatExpiry(req.expiresAt)}</p>}
         {req.status==="pending"&&(
           <div style={{display:"flex",gap:"0.75rem",marginTop:"1.5rem",justifyContent:"flex-end"}}>
             <button className="btn btn-danger" onClick={()=>onReject(req.id)}>✕ Reject</button>
@@ -549,22 +558,91 @@ function ReqDetailModal({ req, photo, onClose, onApprove, onReject }) {
   );
 }
 
+function MultiRequestModal({ photos: selPhotos, onClose, onSubmit }) {
+  const [form, setForm] = useState({ name:"", from:"", message:"", social:"" });
+  const [loading, setLoading] = useState(false);
+  const up = k => e => setForm(f=>({...f,[k]:e.target.value}));
+  const ok = form.name && form.from && form.message;
+  const submit = async () => {
+    if(!ok) return;
+    setLoading(true);
+    await new Promise(r=>setTimeout(r,800));
+    onSubmit({
+      ...form,
+      photoIds: selPhotos.map(p=>p.id),
+      photoTitles: selPhotos.map(p=>p.title),
+    });
+    setLoading(false);
+  };
+  return (
+    <div className="modal-backdrop" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="modal" style={{padding:"2rem",maxWidth:520}}>
+        <div style={{textAlign:"center",marginBottom:"1.5rem"}}>
+          <div style={{fontSize:"2rem",marginBottom:"0.75rem"}}>🌸</div>
+          <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"1.55rem",fontWeight:700,color:"var(--text)",marginBottom:"0.5rem"}}>Tell Han something</h2>
+          <p style={{fontSize:"0.84rem",color:"var(--text3)",lineHeight:1.65}}>
+            You're requesting <strong>{selPhotos.length} photo{selPhotos.length!==1?"s":""}</strong>. Share something you'd like to say.
+          </p>
+        </div>
+        <div style={{display:"flex",gap:"0.35rem",overflowX:"auto",paddingBottom:"0.5rem",marginBottom:"1rem"}}>
+          {selPhotos.map(p=>(
+            <img key={p.id} src={p.thumb} alt={p.title} style={{width:56,height:56,borderRadius:"8px",objectFit:"cover",flexShrink:0}} title={p.title} />
+          ))}
+        </div>
+        <div className="divider" style={{margin:"1rem 0"}} />
+        <p style={{fontSize:"0.77rem",color:"var(--muted)",marginBottom:"1rem",lineHeight:1.7}}>
+          Ideas: your honest impression · a memory you share · something you've always wanted to say · where you know him from
+        </p>
+        <div className="inp-group"><label>Full name *</label><input placeholder="Your name" value={form.name} onChange={up("name")} /></div>
+        <div className="inp-group"><label>Where do you know Han from? *</label><input placeholder="e.g. University, work, childhood…" value={form.from} onChange={up("from")} /></div>
+        <div className="inp-group"><label>Message to Han *</label><textarea placeholder="Write something meaningful…" value={form.message} onChange={up("message")} /></div>
+        <div className="inp-group"><label>Social media <span style={{color:"var(--muted)",fontWeight:400}}>(optional)</span></label><input placeholder="@username" value={form.social} onChange={up("social")} /></div>
+        <div style={{display:"flex",gap:"0.75rem",marginTop:"1.25rem"}}>
+          <button className="btn btn-ghost w-full" onClick={onClose}>Cancel</button>
+          <button className="btn btn-primary w-full" onClick={submit} disabled={loading||!ok} style={{opacity:!ok?0.55:1}}>
+            {loading?<><div className="spinner"/>Sending…</>:"🌸 Send Request"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── GALLERY PAGE ─────────────────────────────────────────────────────────────
 function GalleryPage({ photos, albums, requests, messages, onRequestDownload, likes, onLike, selectedAlbum, setSelectedAlbum }) {
   const [lightbox, setLightbox] = useState(null);
   const [reqModal, setReqModal] = useState(null);
+  const [multiReqModal, setMultiReqModal] = useState(null);
   const [search, setSearch] = useState("");
   const [sent, setSent] = useState({});
+  const [multiSent, setMultiSent] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const [allThumb, setAllThumb] = useState(0);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState(new Set());
+
+  const toggleSelect = pid => { setSelected(s => { const n=new Set(s); if(n.has(pid)) n.delete(pid); else n.add(pid); return n; }); };
+  const clearSelect = () => { setSelected(new Set()); setSelectMode(false); setMultiSent(false); };
+  const openMultiReq = () => {
+    if (selected.size === 0) return;
+    const sel = photos.filter(p => selected.has(p.id));
+    setMultiReqModal(sel);
+  };
+
+  useEffect(() => {
+    if (!photos.length) return;
+    const interval = setInterval(() => setAllThumb(i => (i + 1) % photos.length), 3000);
+    return () => clearInterval(interval);
+  }, [photos.length]);
 
   const filtered = photos.filter(p=>
     (!selectedAlbum||p.albumId===selectedAlbum)&&
     (!search||p.title.toLowerCase().includes(search.toLowerCase())||(p.tags||[]).some(t=>t.includes(search.toLowerCase())))
   );
   const displayPhotos = (selectedAlbum||showAll) ? filtered : filtered.slice(0,8);
-  const isApproved = pid => { const r=requests.find(r=>r.photoId===pid&&r.status==="approved"); return r&&!isExpired(r.expiresAt); };
+  const isApproved = pid => { const r=requests.find(r=>r.status==="approved" && (r.photoId===pid || (r.photoIds||[]).includes(pid))); return r&&!isExpired(r.expiresAt); };
   const handleSave = photo => { if(isApproved(photo.id)){const a=document.createElement("a");a.href=photo.url;a.download=photo.title;a.click();}else{setReqModal(photo);} };
-  const handleRequest = data => { onRequestDownload(data); setSent(s=>({...s,[data.photoId]:true})); };
+  const handleRequest = data => { onRequestDownload(data); if (data.photoIds) { setMultiReqModal(null); setMultiSent(true); } else { setSent(s=>({...s,[data.photoId]:true})); } };
 
   return (
     <>
@@ -576,15 +654,21 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
 
         <div className="hero-eyebrow">✦ Personal Memory Archive ✦</div>
         <h1 className="hero-title">
-          Han's <em>Luminary</em><br/>
-          <span className="soft" style={{fontSize:"0.6em",fontWeight:400}}>a place for memories</span>
+          Han's <em>Luminary</em>
         </h1>
-        <p className="hero-subtitle">
-          A private archive of moments, places, and memories — curated and shared with love.
+        <p className="hero-subtitle" style={{marginBottom:0,whiteSpace:"nowrap",fontSize:"clamp(0.8rem, 2.5vw, 1.2rem)"}}>
+          "Welcome to the solution to 'Can you send me that photo?'."
+        </p>
+        <p className="hero-subtitle" style={{maxWidth:560}}>
+          I've spent enough time searching through my gallery and forwarding the same pictures. So here's the entire archive.</p><p className="hero-subtitle" style={{maxWidth:560,marginTop:"0.75rem"}}>
+          <span style={{fontSize:"1.1rem"}}>✦ </span><strong style={{fontWeight:700}}>If you'd like to save something, send me a request and maybe a message you've never had the chance to say.</strong><span style={{fontSize:"1.1rem"}}> ✦</span>
         </p>
         <div className="hero-actions">
           <button className="btn btn-primary" onClick={()=>document.getElementById("gallery-anchor")?.scrollIntoView({behavior:"smooth"})}>
             🌸 Browse Archive
+          </button>
+          <button className={`btn ${selectMode?"btn-secondary":"btn-ghost"}`} onClick={()=>{setSelectMode(v=>!v);setSelected(new Set());}}>
+            {selectMode?"✕ Cancel":"☐ Select Photos"}
           </button>
         </div>
         <div className="hero-stats">
@@ -605,9 +689,13 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
         <p className="section-sub">Collections of moments, grouped by memory.</p>
         <div className="grid-4">
           <div className="album-card" onClick={()=>{setSelectedAlbum(null);setShowAll(true);}} style={{border:!selectedAlbum?"2px solid var(--pink)":"1px solid var(--border)"}}>
-            <div style={{background:"linear-gradient(135deg,#fce7f3,#f3e8ff)",width:"100%",height:"100%",borderRadius:"var(--radius)",display:"flex",alignItems:"center",justifyContent:"center"}}>
-              <span style={{fontSize:"2.5rem"}}>🌸</span>
-            </div>
+            {photos.length > 0 ? (
+              <img src={photos[allThumb]?.thumb} alt="All Photos" style={{transition:"opacity 0.5s"}} />
+            ) : (
+              <div style={{background:"linear-gradient(135deg,#fce7f3,#f3e8ff)",width:"100%",height:"100%",borderRadius:"var(--radius)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                <span style={{fontSize:"2.5rem"}}>🌸</span>
+              </div>
+            )}
             <div className="album-overlay"><p style={{fontFamily:"'Playfair Display',serif",fontSize:"1rem",color:"#fff",fontWeight:500}}>All Photos</p><p style={{fontSize:"0.73rem",color:"rgba(255,255,255,0.7)"}}>{photos.length} photos</p></div>
           </div>
           {albums.map(a=>(
@@ -639,7 +727,7 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
           <>
           <div className="masonry">
             {displayPhotos.map(p=>(
-              <PhotoTile key={p.id} photo={p} onClick={setLightbox} onSave={()=>handleSave(p)} liked={likes[p.id]} onLike={onLike} approved={isApproved(p.id)} />
+              <PhotoTile key={p.id} photo={p} onClick={setLightbox} onSave={()=>handleSave(p)} liked={likes[p.id]} onLike={onLike} approved={isApproved(p.id)} selectable={selectMode} selected={selected.has(p.id)} onToggle={toggleSelect} />
             ))}
           </div>
           {!selectedAlbum&&!showAll&&filtered.length>8&&(
@@ -674,6 +762,15 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
       </section>
 
       {/* FOOTER */}
+      {selectMode && selected.size > 0 && (
+        <div style={{position:"sticky",bottom:0,left:0,right:0,background:"var(--card-solid)",borderTop:"1px solid var(--border)",padding:"0.75rem 1.5rem",display:"flex",justifyContent:"space-between",alignItems:"center",zIndex:100,backdropFilter:"blur(12px)",gap:"1rem"}}>
+          <p style={{fontSize:"0.88rem",color:"var(--text2)"}}>{selected.size} photo{selected.size!==1?"s":""} selected</p>
+          <div style={{display:"flex",gap:"0.5rem"}}>
+            <button className="btn btn-ghost btn-sm" onClick={clearSelect}>Cancel</button>
+            <button className="btn btn-primary btn-sm" onClick={openMultiReq}>🌸 Request Selected ({selected.size})</button>
+          </div>
+        </div>
+      )}
       <footer style={{textAlign:"center",padding:"2.5rem",borderTop:"1px solid var(--border)",color:"var(--muted)",fontSize:"0.8rem"}}>
         <p style={{fontFamily:"'Playfair Display',serif",fontSize:"1.1rem",fontStyle:"italic",color:"var(--pink-dark)",marginBottom:"0.4rem"}}>✦ Luminary</p>
         <p>Han's personal memory archive · All rights reserved</p>
@@ -691,11 +788,22 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
           </div>
         </div>
       )}
-    </>
-  );
-}
+      {multiReqModal&&<MultiRequestModal photos={multiReqModal} onClose={()=>setMultiReqModal(null)} onSubmit={handleRequest} />}
+      {multiSent&&(
+        <div className="modal-backdrop" onClick={()=>{setMultiSent(false);clearSelect();}}>
+          <div className="modal modal-sm" style={{padding:"2rem",textAlign:"center",marginTop:"20vh"}}>
+            <div style={{fontSize:"2rem",marginBottom:"0.75rem"}}>🌸</div>
+            <h3 style={{fontFamily:"'Playfair Display',serif",fontSize:"1.2rem",fontWeight:700,marginBottom:"0.5rem"}}>Multi-Request Sent!</h3>
+            <p style={{color:"var(--text2)",lineHeight:1.7,marginBottom:"1.25rem",fontSize:"0.88rem"}}>Your request for {selected.size} photo{selected.size!==1?"s":""} has been sent to Han. You'll hear back soon.</p>
+            <button className="btn btn-primary" onClick={()=>{setMultiSent(false);clearSelect();}}>Done 🌸</button>
+          </div>
+        </div>
+      )}
+      </>
+    );
+  }
 
-// ─── LOGIN ────────────────────────────────────────────────────────────────────
+  // ─── LOGIN ────────────────────────────────────────────────────────────────────
 function LoginPage({ onLogin }) {
   const [pw,setPw]=useState(""); const [err,setErr]=useState(""); const [loading,setLoading]=useState(false);
   const submit=async()=>{setLoading(true);try{const r=await api.login(pw);if(r.success){onLogin();}else{setErr("Incorrect password.");}}catch{setErr("Incorrect password.");}setLoading(false);};
@@ -780,7 +888,7 @@ function Dashboard({ photos, albums, requests, messages, notifications, onLogout
               <h3 style={{fontFamily:"'Playfair Display',serif",fontWeight:700,marginBottom:"1rem",color:"var(--pink-dark)"}}>Recent Requests</h3>
               {requests.slice(0,4).map(r=>(
                 <div key={r.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"0.6rem 0",borderBottom:"1px solid var(--border)",cursor:"pointer"}} onClick={()=>{setReqDetail(r);setTab("requests");}}>
-                  <div><p style={{fontSize:"0.88rem",fontWeight:600,color:"var(--text)"}}>{r.name}</p><p style={{fontSize:"0.73rem",color:"var(--muted)"}}>{r.photoTitle}</p></div>
+                  <div><p style={{fontSize:"0.88rem",fontWeight:600,color:"var(--text)"}}>{r.name}</p><p style={{fontSize:"0.73rem",color:"var(--muted)"}}>{(r.photoTitles||[r.photoTitle]).length} photo{(r.photoTitles||[r.photoTitle]).length!==1?"s":""}</p></div>
                   <span className={`tag tag-${r.status}`}>{r.status}</span>
                 </div>
               ))}
@@ -856,17 +964,22 @@ function Dashboard({ photos, albums, requests, messages, notifications, onLogout
           </div>
           <div style={{display:"flex",flexDirection:"column",gap:"0.75rem"}}>
             {filteredReqs.map(r=>{
-              const photo=photos.find(p=>p.id===r.photoId);
+              const reqPhotos=photos.filter(p=>r.photoId===p.id||(r.photoIds||[]).includes(p.id));
               return (
                 <div key={r.id} className="card" style={{display:"grid",gridTemplateColumns:"auto 1fr auto",gap:"1rem",alignItems:"center",cursor:"pointer"}} onClick={()=>setReqDetail(r)}>
-                  {photo&&<img src={photo.thumb} alt="" style={{width:56,height:56,borderRadius:"10px",objectFit:"cover"}} />}
+                  <div style={{position:"relative"}}>
+                    {reqPhotos.length>0
+                      ? <img src={reqPhotos[0].thumb} alt="" style={{width:56,height:56,borderRadius:"10px",objectFit:"cover"}} />
+                      : <div style={{width:56,height:56,borderRadius:"10px",background:"var(--border)"}} />}
+                    {reqPhotos.length>1&&<span style={{position:"absolute",bottom:-4,right:-4,background:"var(--pink)",color:"#fff",fontSize:"0.65rem",fontWeight:700,borderRadius:"50%",width:18,height:18,display:"flex",alignItems:"center",justifyContent:"center",border:"2px solid var(--card-solid)"}}>{reqPhotos.length}</span>}
+                  </div>
                   <div>
                     <div style={{display:"flex",alignItems:"center",gap:"0.65rem",marginBottom:"0.25rem"}}>
                       <p style={{fontWeight:600,fontSize:"0.92rem",color:"var(--text)"}}>{r.name}</p>
                       <span className={`tag tag-${r.status}`}>{r.status}</span>
                     </div>
                     <p style={{fontSize:"0.8rem",color:"var(--text3)",marginBottom:"0.2rem"}}>"{r.message.slice(0,65)}{r.message.length>65?"…":""}"</p>
-                    <p style={{fontSize:"0.73rem",color:"var(--muted)"}}>{r.from} · {timeAgo(r.date)} · {r.photoTitle}</p>
+                    <p style={{fontSize:"0.73rem",color:"var(--muted)"}}>{r.from} · {timeAgo(r.date)} · {reqPhotos.length} photo{reqPhotos.length!==1?"s":""}</p>
                     {r.status==="approved"&&r.expiresAt&&<p style={{fontSize:"0.73rem",color:isExpired(r.expiresAt)?"#be123c":"#0f766e",marginTop:"0.15rem"}}>⏱ {formatExpiry(r.expiresAt)}</p>}
                   </div>
                   {r.status==="pending"&&(
@@ -902,7 +1015,7 @@ function Dashboard({ photos, albums, requests, messages, notifications, onLogout
       </div>
 
       {showUpload&&<UploadModal albums={albums} onClose={()=>setShowUpload(false)} onUpload={(files,albumId)=>{onUpload(files,albumId);setShowUpload(false);}} />}
-      {reqDetail&&<ReqDetailModal req={reqDetail} photo={photos.find(p=>p.id===reqDetail.photoId)} onClose={()=>setReqDetail(null)} onApprove={id=>{onApprove(id);setReqDetail(null);}} onReject={id=>{onReject(id);setReqDetail(null);}} />}
+      {reqDetail&&<ReqDetailModal req={reqDetail} photos={photos} onClose={()=>setReqDetail(null)} onApprove={id=>{onApprove(id);setReqDetail(null);}} onReject={id=>{onReject(id);setReqDetail(null);}} />}
     </>
   );
 }
@@ -945,7 +1058,7 @@ export default function App() {
       if(ms)setMessages(ms.messages);
       const notifs = rq.requests
         .filter(r=>r.status==="pending")
-        .map(r=>`${r.name} requested to save "${r.photoTitle}"`);
+        .map(r=>`${r.name} requested to save ${(r.photoTitles||[r.photoTitle]).length} photo(s)`);
       setNotifications(notifs.length > 0 ? notifs : []);
     } catch(err) {
       console.error("Failed to load data", err);
@@ -958,7 +1071,7 @@ export default function App() {
       const { request, message } = await api.createRequest(data);
       setRequests(r=>[request,...r]);
       setMessages(m=>[message,...m]);
-      setNotifications(n=>[`${data.name} requested to save "${data.photoTitle}"`,...n]);
+      setNotifications(n=>[`${data.name} requested to save ${(data.photoTitles||[data.photoTitle]).length} photo(s)`,...n]);
     } catch {
       toast("Failed to send request","error");
     }
