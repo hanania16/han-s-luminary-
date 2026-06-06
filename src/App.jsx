@@ -33,7 +33,7 @@ function FloatingPhotos({ photos }) {
     const cw = window.innerWidth;
     const ch = window.innerHeight + 400;
     const margin = 12;
-    const sizes  = [110, 130, 100, 145, 120, 90, 155, 105, 135, 115];
+    const sizes  = [180, 210, 170, 240, 200, 160, 250, 175, 220, 190];
 
     const result = [];
     for (const p of picked) {
@@ -67,8 +67,8 @@ function FloatingPhotos({ photos }) {
         <div key={b.id+i} style={{
           position:"absolute",
           left:`${b.left}%`, top:`${b.top}%`,
-          width:b.size, height:b.size,
-          borderRadius: i%3===0 ? "40% 60% 55% 45%/45% 40% 60% 55%" : i%3===1 ? "50%" : "30% 70% 60% 40%/50% 30% 70% 50%",
+          width:b.size,
+          borderRadius: "8px",
           overflow:"hidden",
           border:"3px solid rgba(255,255,255,0.6)",
           boxShadow:"0 8px 32px rgba(236,72,153,0.18), 0 2px 8px rgba(255,182,193,0.3)",
@@ -76,9 +76,7 @@ function FloatingPhotos({ photos }) {
           animation:`dropBubble ${b.dur}s ${b.delay}s linear infinite both`,
           filter:"blur(0.5px)",
         }}>
-          <div style={{width:"100%",height:"100%",transform:`rotate(${b.rotate}deg)`}}>
-            <img src={b.thumb} alt="" style={{width:"100%",height:"100%",objectFit:"cover",filter:"saturate(1.1) brightness(1.05)"}} loading="lazy"/>
-          </div>
+          <img src={b.thumb} alt="" style={{width:"100%",height:"auto",display:"block",filter:"saturate(1.1) brightness(1.05)"}} loading="lazy"/>
         </div>
       ))}
     </div>
@@ -193,8 +191,7 @@ body { background:var(--bg); color:var(--text); font-family:'Nunito',sans-serif;
 .hero-actions { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; animation:fadeUp 0.9s ease 0.3s both; position:relative; z-index:1; }
 
 .hero-stats { display:flex; gap:1.25rem; margin-top:3.5rem; animation:fadeUp 0.9s ease 0.45s both; position:relative; z-index:1; }
-.hero-stat-card { background:var(--card-solid); border:1px solid var(--border); border-radius:var(--radius); padding:1.25rem 2rem; min-width:110px; text-align:center; transition:all 0.3s; }
-.hero-stat-card:hover { border-color:var(--border-med); box-shadow:0 8px 40px rgba(236,72,153,0.12); transform:translateY(-2px); }
+.hero-stat-card { padding:1.25rem 2rem; min-width:110px; text-align:center; transition:all 0.3s; }
 .hero-stat-num { font-family:'Playfair Display',serif; font-size:2.2rem; font-weight:700; color:var(--pink-dark); }
 .hero-stat-lbl { font-size:0.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.12em; margin-top:0.1rem; }
 
