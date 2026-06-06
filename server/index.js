@@ -19,7 +19,12 @@ if (!existsSync(UPLOAD_DIR)) mkdirSync(UPLOAD_DIR, { recursive: true });
 
 app.use(cors({ origin: true }));
 app.use(express.json());
-app.use("/uploads", express.static(UPLOAD_DIR));
+
+app.get("/api/uploads/:filename", (req, res) => {
+  const filePath = join(UPLOAD_DIR, req.params.filename);
+  if (!existsSync(filePath)) return res.status(404).json({ error: "File not found" });
+  res.sendFile(filePath);
+});
 
 const storage = multer.diskStorage({
   destination: UPLOAD_DIR,
@@ -66,7 +71,7 @@ app.post("/api/photos", upload.array("files"), async (req, res) => {
         console.error("Image conversion failed for", f.originalname, convErr.message);
       }
       const id = "p" + Date.now() + i;
-      const relativePath = `/uploads/${filename}`;
+      const relativePath = `/api/uploads/${filename}`;
       return prisma.photo.create({
         data: {
           id,
