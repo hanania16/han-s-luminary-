@@ -192,7 +192,9 @@ body { background:var(--bg); color:var(--text); font-family:'Nunito',sans-serif;
 .hero-subtitle { font-size:1.05rem; color:var(--text2); max-width:480px; line-height:1.75; margin-bottom:2.5rem; animation:fadeUp 0.9s ease 0.15s both; position:relative; z-index:1; }
 .hero-actions { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; animation:fadeUp 0.9s ease 0.3s both; position:relative; z-index:1; }
 
-.hero-stats { display:flex; gap:3rem; margin-top:3.5rem; animation:fadeUp 0.9s ease 0.45s both; position:relative; z-index:1; }
+.hero-stats { display:flex; gap:1.25rem; margin-top:3.5rem; animation:fadeUp 0.9s ease 0.45s both; position:relative; z-index:1; }
+.hero-stat-card { background:var(--card-solid); border:1px solid var(--border); border-radius:var(--radius); padding:1.25rem 2rem; min-width:110px; text-align:center; transition:all 0.3s; }
+.hero-stat-card:hover { border-color:var(--border-med); box-shadow:0 8px 40px rgba(236,72,153,0.12); transform:translateY(-2px); }
 .hero-stat-num { font-family:'Playfair Display',serif; font-size:2.2rem; font-weight:700; color:var(--pink-dark); }
 .hero-stat-lbl { font-size:0.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.12em; margin-top:0.1rem; }
 
@@ -590,7 +592,7 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
         </div>
         <div className="hero-stats">
           {[["Photos",photos.length],["Albums",albums.length],["Messages",messages.length+" shared"]].map(([l,v])=>(
-            <div key={l} style={{textAlign:"center"}}>
+            <div key={l} className="hero-stat-card">
               <div className="hero-stat-num">{v}</div>
               <div className="hero-stat-lbl">{l}</div>
             </div>
