@@ -492,17 +492,17 @@ function PhotoTile({ photo, onClick, onSave, liked, onLike, approved }) {
 
 function UploadModal({ albums, onClose, onUpload }) {
   const [files,setFiles]=useState([]); const [album,setAlbum]=useState(albums[0]?.id||""); const [drag,setDrag]=useState(false); const [loading,setLoading]=useState(false); const ref=useRef();
-  const handleDrop=e=>{e.preventDefault();setDrag(false);setFiles(p=>[...p,...Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith("image/"))]);};
+  const handleDrop=e=>{e.preventDefault();setDrag(false);setFiles(p=>[...p,...Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith("image/")||/\.hei(c|f)$/i.test(f.name))]);};
   const submit=async()=>{if(!files.length||!album)return;setLoading(true);await new Promise(r=>setTimeout(r,900));onUpload(files,album);setLoading(false);};
   return (
     <div className="modal-backdrop" onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div className="modal modal-sm" style={{padding:"2rem"}}>
         <div className="flex-between" style={{marginBottom:"1.25rem"}}><h3 style={{fontFamily:"'Playfair Display',serif",fontWeight:700,fontSize:"1.3rem"}}>Upload Photos</h3><button className="btn btn-ghost btn-icon btn-sm" onClick={onClose}>✕</button></div>
         <div className={`upload-zone ${drag?"drag":""}`} onDragOver={e=>{e.preventDefault();setDrag(true);}} onDragLeave={()=>setDrag(false)} onDrop={handleDrop} onClick={()=>ref.current.click()}>
-          <input ref={ref} type="file" multiple accept="image/*" style={{display:"none"}} onChange={e=>setFiles(p=>[...p,...Array.from(e.target.files)])} />
+          <input ref={ref} type="file" multiple accept="image/*,.heic,.heif,.HEIC,.HEIF" style={{display:"none"}} onChange={e=>setFiles(p=>[...p,...Array.from(e.target.files)])} />
           <div style={{fontSize:"1.8rem",marginBottom:"0.6rem"}}>🌸</div>
           <p style={{color:"var(--text2)",fontSize:"0.88rem",fontWeight:500}}>Drop photos here or click to browse</p>
-          <p style={{color:"var(--muted)",fontSize:"0.76rem",marginTop:"0.25rem"}}>JPG, PNG, WEBP</p>
+          <p style={{color:"var(--muted)",fontSize:"0.76rem",marginTop:"0.25rem"}}>All image formats accepted</p>
         </div>
         {files.length>0&&<div style={{marginTop:"0.75rem",display:"flex",flexWrap:"wrap",gap:"0.35rem"}}>{files.map((f,i)=><span key={i} className="tag tag-pink">{f.name.slice(0,16)}{f.name.length>16?"…":""}</span>)}</div>}
         <div className="inp-group" style={{marginTop:"1rem"}}><label>Album</label>
@@ -986,19 +986,20 @@ export default function App() {
     try{
       const { photos: newPhotos } = await api.uploadPhotos(files, albumId);
       setPhotos(p=>[...newPhotos,...p]);
-      setAlbums(a=>a.map(al=>al.id===albumId?{...al,count:al.count+files.length}:al));
+      setAlbums(a=>a.map(al=>al.id===albumId?{...al,count:al.count+files.length,cover:newPhotos[0].thumb}:al));
       toast(`${files.length} photo(s) uploaded 🌸`,"success");
-    } catch {
-      toast("Failed to upload","error");
+    } catch(e){
+      toast(e.message||"Failed to upload","error");
     }
   };
   const handleDeletePhoto=async id=>{
     try {
-      await api.deletePhoto(id);
+      const { album } = await api.deletePhoto(id);
       setPhotos(p=>p.filter(ph=>ph.id!==id));
+      if (album) setAlbums(a=>a.map(al=>al.id===album.id?album:al));
       toast("Photo deleted","error");
-    } catch {
-      toast("Failed to delete photo","error");
+    } catch(e){
+      toast(e.message||"Failed to delete photo","error");
     }
   };
   const handleAddAlbum=async name=>{
@@ -1006,8 +1007,8 @@ export default function App() {
       const { album } = await api.createAlbum(name);
       setAlbums(a=>[...a,album]);
       toast(`Album "${name}" created 🌸`,"success");
-    } catch {
-      toast("Failed to create album","error");
+    } catch(e){
+      toast(e.message||"Failed to create album","error");
     }
   };
   const handleLike=id=>setLikes(l=>({...l,[id]:!l[id]}));

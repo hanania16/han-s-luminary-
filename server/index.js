@@ -2,8 +2,9 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import multer from "multer";
+import sharp from "sharp";
 import { PrismaClient } from "@prisma/client";
-import { existsSync, mkdirSync, writeFileSync, unlinkSync, createReadStream } from "fs";
+import { existsSync, mkdirSync, unlinkSync } from "fs";
 import { join, extname } from "path";
 import { randomUUID } from "crypto";
 
@@ -55,8 +56,17 @@ app.post("/api/photos", upload.array("files"), async (req, res) => {
     if (!files || files.length === 0) return res.status(400).json({ error: "No files" });
 
     const newPhotos = await Promise.all(files.map(async (f, i) => {
+      let filename = f.filename;
+      try {
+        const webpName = filename.replace(extname(filename), ".webp");
+        await sharp(f.path).webp({ quality: 85 }).toFile(join(UPLOAD_DIR, webpName));
+        unlinkSync(f.path);
+        filename = webpName;
+      } catch (convErr) {
+        console.error("Image conversion failed for", f.originalname, convErr.message);
+      }
       const id = "p" + Date.now() + i;
-      const relativePath = `/uploads/${f.filename}`;
+      const relativePath = `/uploads/${filename}`;
       return prisma.photo.create({
         data: {
           id,
@@ -74,7 +84,10 @@ app.post("/api/photos", upload.array("files"), async (req, res) => {
 
     await prisma.album.update({
       where: { id: albumId },
-      data: { count: { increment: files.length } },
+      data: {
+        count: { increment: files.length },
+        cover: newPhotos[0].thumb,
+      },
     });
 
     res.json({ photos: newPhotos });
@@ -91,12 +104,24 @@ app.delete("/api/photos/:id", async (req, res) => {
     await prisma.request.deleteMany({ where: { photoId: photo.id } });
     await prisma.photo.delete({ where: { id: photo.id } });
 
+    const remaining = await prisma.photo.findFirst({
+      where: { albumId: photo.albumId },
+      orderBy: { createdAt: "desc" },
+    });
+    const updatedAlbum = await prisma.album.update({
+      where: { id: photo.albumId },
+      data: {
+        count: { decrement: 1 },
+        ...(remaining ? { cover: remaining.thumb } : { cover: "https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400" }),
+      },
+    });
+
     if (photo.stored && photo.url.startsWith("/uploads/")) {
       const filePath = join(UPLOAD_DIR, photo.url.replace("/uploads/", ""));
       if (existsSync(filePath)) unlinkSync(filePath);
     }
 
-    res.json({ success: true });
+    res.json({ success: true, album: updatedAlbum });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
