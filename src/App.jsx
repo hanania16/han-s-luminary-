@@ -1,38 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate, Routes, Route, useLocation } from "react-router-dom";
-
-// ─── STORAGE ──────────────────────────────────────────────────────────────────
-const SK = { photos:"lum:photos", albums:"lum:albums", requests:"lum:requests", messages:"lum:messages", likes:"lum:likes" };
-async function dbGet(k){try{const r=await window.storage.get(k);return r?JSON.parse(r.value):null;}catch{try{const r=localStorage.getItem(k);return r?JSON.parse(r):null;}catch{return null;}}}
-async function dbSet(k,v){const s=JSON.stringify(v);try{await window.storage.set(k,s);}catch{}try{localStorage.setItem(k,s);}catch{}}
-
-// ─── SEED DATA ────────────────────────────────────────────────────────────────
-const SEED_PHOTOS = [
-  { id:"p1", title:"Golden Hour",      album:"a1", url:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800", thumb:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400", date:"2024-06-15", tags:["nature","sunset"],  likes:12 },
-  { id:"p2", title:"City Lights",      album:"a1", url:"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800", thumb:"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400", date:"2024-07-20", tags:["city","night"],    likes:8  },
-  { id:"p3", title:"Morning Fog",      album:"a1", url:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800", thumb:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400", date:"2024-08-01", tags:["mountain","fog"],  likes:23 },
-  { id:"p4", title:"Ocean Calm",       album:"a2", url:"https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=800", thumb:"https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=400", date:"2024-09-10", tags:["ocean","calm"],    likes:15 },
-  { id:"p5", title:"Forest Path",      album:"a2", url:"https://images.unsplash.com/photo-1448375240586-882707db888b?w=800", thumb:"https://images.unsplash.com/photo-1448375240586-882707db888b?w=400", date:"2024-10-05", tags:["forest","path"],   likes:19 },
-  { id:"p6", title:"Desert Dunes",     album:"a2", url:"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800", thumb:"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=400", date:"2024-11-12", tags:["desert","travel"],  likes:31 },
-  { id:"p7", title:"Starry Night",     album:"a3", url:"https://images.unsplash.com/photo-1464802686167-b939a6910659?w=800", thumb:"https://images.unsplash.com/photo-1464802686167-b939a6910659?w=400", date:"2024-12-01", tags:["stars","night"],   likes:44 },
-  { id:"p8", title:"Cherry Blossoms",  album:"a3", url:"https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=800", thumb:"https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400", date:"2025-03-20", tags:["spring","japan"],   likes:56 },
-  { id:"p9", title:"Rainy Window",     album:"a3", url:"https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=800", thumb:"https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=400", date:"2025-01-08", tags:["rain","moody"],    likes:27 },
-];
-const SEED_ALBUMS = [
-  { id:"a1", name:"Me as a Kid",       cover:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400", count:3 },
-  { id:"a2", name:"My Friends & Me",   cover:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400", count:3 },
-  { id:"a3", name:"Only Me",           cover:"https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=400", count:3 },
-];
-const SEED_REQUESTS = [
-  { id:"r1", photoId:"p1", photoTitle:"Golden Hour",     name:"Samuel Tesfaye", from:"University friend",   message:"Han, you helped me through my first year at university. This photo reminds me of the evenings we'd study together. You were always the calm I needed.", social:"@samuelT", status:"pending",  date:"2025-06-01T14:32:00Z" },
-  { id:"r2", photoId:"p7", photoTitle:"Starry Night",    name:"Meron Alemu",    from:"Childhood neighbor",  message:"I never got the chance to tell you how much your kindness meant to me growing up. We used to stare at the stars from the roof and dream about the future.", social:"@meron_a", status:"approved", approvedAt:"2025-06-02T10:00:00Z", expiresAt: new Date(Date.now()+12*3600000).toISOString(), date:"2025-06-01T09:15:00Z" },
-  { id:"r3", photoId:"p8", photoTitle:"Cherry Blossoms", name:"Abel Girma",     from:"Work colleague",      message:"This photo is stunning, Han. You always had an eye for beauty that most of us walk right past. Thank you for sharing your world with us.", social:"", status:"rejected", date:"2025-05-30T16:45:00Z" },
-];
-const SEED_MESSAGES = [
-  { id:"m1", name:"Samuel Tesfaye", text:"You helped me through my first year at college. I don't think I would have made it without you.", from:"University", date:"2025-06-01" },
-  { id:"m2", name:"Meron Alemu",    text:"I never got the chance to say thank you. These photos remind me of our best memories together.", from:"Childhood",  date:"2025-06-01" },
-  { id:"m3", name:"Abel Girma",     text:"You always saw the world differently. Thank you for letting us see it through your lens.", from:"Work", date:"2025-05-30" },
-];
+import { api } from "./api.js";
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 function timeAgo(iso){const s=Math.floor((Date.now()-new Date(iso))/1000);if(s<60)return"just now";if(s<3600)return`${Math.floor(s/60)}m ago`;if(s<86400)return`${Math.floor(s/3600)}h ago`;return`${Math.floor(s/86400)}d ago`;}
@@ -59,6 +27,7 @@ function Toasts({toasts}){
 
 // ─── FLOATING PHOTO BUBBLES ────────────────────────────────────────────────────
 function FloatingPhotos({ photos }) {
+  /* eslint-disable react-hooks/purity */
   const bubbles = useMemo(() => {
     const picked = shuffle(photos).slice(0, Math.min(10, photos.length));
     const cw = window.innerWidth;
@@ -90,6 +59,7 @@ function FloatingPhotos({ photos }) {
     }
     return result;
   }, [photos]);
+  /* eslint-enable react-hooks/purity */
 
   return (
     <div style={{position:"absolute",inset:0,overflow:"hidden",pointerEvents:"none",zIndex:0}}>
@@ -282,13 +252,21 @@ body { background:var(--bg); color:var(--text); font-family:'Nunito',sans-serif;
 .modal-lg { width:100%; max-width:680px; }
 
 /* ── SIDEBAR / DASHBOARD ── */
-.sidebar { position:fixed; left:0; top:64px; bottom:0; width:240px; background:var(--card-solid); border-right:1px solid var(--border); padding:1.25rem 1rem; overflow-y:auto; display:flex; flex-direction:column; gap:0.2rem; }
+.sidebar { position:fixed; left:0; top:64px; bottom:0; width:240px; background:var(--card-solid); border-right:1px solid var(--border); padding:1.25rem 1rem; overflow-y:auto; display:flex; flex-direction:column; gap:0.2rem; z-index:150; transition:transform 0.25s ease; }
 .sb-item { padding:0.6rem 0.9rem; border-radius:var(--radius-sm); display:flex; align-items:center; gap:0.7rem; font-size:0.88rem; color:var(--text2); cursor:pointer; transition:all 0.2s; border:1px solid transparent; font-weight:500; }
 .sb-item:hover { background:rgba(236,72,153,0.07); color:var(--pink-dark); }
 .sb-item.active { background:rgba(236,72,153,0.1); color:var(--pink-dark); border-color:rgba(236,72,153,0.2); }
 .sb-item .badge { margin-left:auto; background:var(--pink); color:#fff; font-size:0.7rem; padding:1px 6px; border-radius:50px; min-width:18px; text-align:center; }
 .dash-body { margin-left:240px; padding:2rem; padding-top:calc(64px + 2rem); min-height:100vh; }
-@media(max-width:768px){ .sidebar{display:none;} .dash-body{margin-left:0;} }
+.sidebar-backdrop { display:none; }
+.hamburger { display:none; background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--text2); padding:0.25rem; }
+@media(max-width:768px){
+  .sidebar { transform:translateX(-100%); }
+  .sidebar.open { transform:translateX(0); }
+  .sidebar-backdrop { display:block; position:fixed; inset:0; z-index:149; background:rgba(0,0,0,0.4); }
+  .dash-body { margin-left:0; }
+  .hamburger { display:inline-flex; align-items:center; justify-content:center; }
+}
 
 /* ── STATS ── */
 .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:1rem; }
@@ -578,11 +556,13 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
   const [reqModal, setReqModal] = useState(null);
   const [search, setSearch] = useState("");
   const [sent, setSent] = useState({});
+  const [showAll, setShowAll] = useState(false);
 
   const filtered = photos.filter(p=>
-    (!selectedAlbum||p.album===selectedAlbum)&&
+    (!selectedAlbum||p.albumId===selectedAlbum)&&
     (!search||p.title.toLowerCase().includes(search.toLowerCase())||(p.tags||[]).some(t=>t.includes(search.toLowerCase())))
   );
+  const displayPhotos = (selectedAlbum||showAll) ? filtered : filtered.slice(0,8);
   const isApproved = pid => { const r=requests.find(r=>r.photoId===pid&&r.status==="approved"); return r&&!isExpired(r.expiresAt); };
   const handleSave = photo => { if(isApproved(photo.id)){const a=document.createElement("a");a.href=photo.url;a.download=photo.title;a.click();}else{setReqModal(photo);} };
   const handleRequest = data => { onRequestDownload(data); setSent(s=>({...s,[data.photoId]:true})); };
@@ -625,16 +605,16 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
         <h2 className="section-title">Albums</h2>
         <p className="section-sub">Collections of moments, grouped by memory.</p>
         <div className="grid-4">
-          <div className="album-card" onClick={()=>setSelectedAlbum(null)} style={{border:!selectedAlbum?"2px solid var(--pink)":"1px solid var(--border)"}}>
+          <div className="album-card" onClick={()=>{setSelectedAlbum(null);setShowAll(true);}} style={{border:!selectedAlbum?"2px solid var(--pink)":"1px solid var(--border)"}}>
             <div style={{background:"linear-gradient(135deg,#fce7f3,#f3e8ff)",width:"100%",height:"100%",borderRadius:"var(--radius)",display:"flex",alignItems:"center",justifyContent:"center"}}>
               <span style={{fontSize:"2.5rem"}}>🌸</span>
             </div>
             <div className="album-overlay"><p style={{fontFamily:"'Playfair Display',serif",fontSize:"1rem",color:"#fff",fontWeight:500}}>All Photos</p><p style={{fontSize:"0.73rem",color:"rgba(255,255,255,0.7)"}}>{photos.length} photos</p></div>
           </div>
           {albums.map(a=>(
-            <div key={a.id} className="album-card" onClick={()=>setSelectedAlbum(a.id===selectedAlbum?null:a.id)} style={{border:selectedAlbum===a.id?"2px solid var(--pink)":"1px solid var(--border)"}}>
+            <div key={a.id} className="album-card" onClick={()=>{const next=a.id===selectedAlbum?null:a.id;setSelectedAlbum(next);if(next)setShowAll(true);}} style={{border:selectedAlbum===a.id?"2px solid var(--pink)":"1px solid var(--border)"}}>
               <img src={a.cover} alt={a.name} />
-              <div className="album-overlay"><p style={{fontFamily:"'Playfair Display',serif",fontSize:"1rem",color:"#fff",fontWeight:500}}>{a.name}</p><p style={{fontSize:"0.73rem",color:"rgba(255,255,255,0.7)"}}>{photos.filter(p=>p.album===a.id).length} photos</p></div>
+              <div className="album-overlay"><p style={{fontFamily:"'Playfair Display',serif",fontSize:"1rem",color:"#fff",fontWeight:500}}>{a.name}</p><p style={{fontSize:"0.73rem",color:"rgba(255,255,255,0.7)"}}>{photos.filter(p=>p.albumId===a.id).length} photos</p></div>
             </div>
           ))}
         </div>
@@ -649,7 +629,7 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
             <h2 className="section-title">Archive</h2>
             {selectedAlbum&&<p style={{color:"var(--pink)",fontSize:"0.83rem",marginTop:"0.2rem"}}>Filtered: {albums.find(a=>a.id===selectedAlbum)?.name}</p>}
           </div>
-          <input placeholder="Search photos…" value={search} onChange={e=>setSearch(e.target.value)} style={{width:210}} />
+          <input placeholder="Search photos…" value={search} onChange={e=>{setSearch(e.target.value);setShowAll(true);}} style={{width:210}} />
         </div>
         {filtered.length===0?(
           <div style={{textAlign:"center",padding:"4rem",color:"var(--muted)"}}>
@@ -657,11 +637,18 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
             <p>No photos found</p>
           </div>
         ):(
+          <>
           <div className="masonry">
-            {filtered.map(p=>(
+            {displayPhotos.map(p=>(
               <PhotoTile key={p.id} photo={p} onClick={setLightbox} onSave={()=>handleSave(p)} liked={likes[p.id]} onLike={onLike} approved={isApproved(p.id)} />
             ))}
           </div>
+          {!selectedAlbum&&!showAll&&filtered.length>8&&(
+            <div style={{textAlign:"center",marginTop:"2rem"}}>
+              <button className="btn btn-primary" onClick={()=>setShowAll(true)}>View all {filtered.length} photos</button>
+            </div>
+          )}
+          </>
         )}
       </section>
 
@@ -712,11 +699,10 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
 // ─── LOGIN ────────────────────────────────────────────────────────────────────
 function LoginPage({ onLogin }) {
   const [pw,setPw]=useState(""); const [err,setErr]=useState(""); const [loading,setLoading]=useState(false);
-  const submit=async()=>{setLoading(true);await new Promise(r=>setTimeout(r,600));if(pw==="lemlemMeseret"){onLogin();}else{setErr("Incorrect password.");setLoading(false);}};
+  const submit=async()=>{setLoading(true);try{const r=await api.login(pw);if(r.success){onLogin();}else{setErr("Incorrect password.");}}catch{setErr("Incorrect password.");}setLoading(false);};
   return (
     <div className="login-wrap">
       <div className="hero-mesh" style={{position:"absolute",inset:0,opacity:0.4}} />
-      <FloatingPhotos photos={SEED_PHOTOS} />
       <div className="login-card">
         <div style={{textAlign:"center",marginBottom:"2rem"}}>
           <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>🌸</div>
@@ -733,7 +719,7 @@ function LoginPage({ onLogin }) {
 
 // ─── DASHBOARD ────────────────────────────────────────────────────────────────
 function Dashboard({ photos, albums, requests, messages, notifications, onLogout, onApprove, onReject, onUpload, onDeletePhoto, onAddAlbum }) {
-  const [tab,setTab]=useState("overview"); const [reqDetail,setReqDetail]=useState(null); const [showUpload,setShowUpload]=useState(false); const [showAlbumForm,setShowAlbumForm]=useState(false); const [newAlbum,setNewAlbum]=useState(""); const [showNotifs,setShowNotifs]=useState(false); const [filterStatus,setFilterStatus]=useState("all");
+  const [tab,setTab]=useState("overview"); const [reqDetail,setReqDetail]=useState(null); const [showUpload,setShowUpload]=useState(false); const [showAlbumForm,setShowAlbumForm]=useState(false); const [newAlbum,setNewAlbum]=useState(""); const [showNotifs,setShowNotifs]=useState(false); const [filterStatus,setFilterStatus]=useState("all"); const [sidebarOpen,setSidebarOpen]=useState(false);
   const pending=requests.filter(r=>r.status==="pending");
   const approved=requests.filter(r=>r.status==="approved");
   const TABS=[{id:"overview",label:"Overview",icon:"🌸"},{id:"photos",label:"Photos",icon:"📷"},{id:"albums",label:"Albums",icon:"🗂"},{id:"requests",label:"Requests",icon:"💌",badge:pending.length},{id:"messages",label:"Messages",icon:"✉"}];
@@ -741,26 +727,31 @@ function Dashboard({ photos, albums, requests, messages, notifications, onLogout
 
   return (
     <>
-      <div className="sidebar">
+      <div className={`sidebar${sidebarOpen?" open":""}`}>
         <div style={{padding:"0.5rem 0.5rem 1.25rem",borderBottom:"1px solid var(--border)",marginBottom:"0.6rem"}}>
           <p style={{fontFamily:"'Playfair Display',serif",fontSize:"1.05rem",fontStyle:"italic",fontWeight:700,color:"var(--pink-dark)"}}>🌸 Luminary</p>
           <p style={{fontSize:"0.73rem",color:"var(--muted)",marginTop:"0.15rem"}}>Owner Dashboard</p>
         </div>
         {TABS.map(t=>(
-          <div key={t.id} className={`sb-item ${tab===t.id?"active":""}`} onClick={()=>setTab(t.id)}>
+          <div key={t.id} className={`sb-item ${tab===t.id?"active":""}`} onClick={()=>{setTab(t.id);setSidebarOpen(false);}}>
             <span>{t.icon}</span>{t.label}
             {t.badge>0&&<span className="badge">{t.badge}</span>}
           </div>
         ))}
         <div style={{flex:1}} />
-        <div className="sb-item" onClick={onLogout} style={{color:"var(--muted)"}}>
+        <div className="sb-item" onClick={()=>{onLogout();setSidebarOpen(false);}} style={{color:"var(--muted)"}}>
           <span>⎋</span>Sign Out
         </div>
       </div>
 
+      {sidebarOpen&&<div className="sidebar-backdrop" onClick={()=>setSidebarOpen(false)} />}
+
       <div className="dash-body">
         <div className="flex-between" style={{marginBottom:"1.5rem"}}>
-          <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"1.7rem",fontWeight:700,color:"var(--text)"}}>{TABS.find(t=>t.id===tab)?.icon} {TABS.find(t=>t.id===tab)?.label}</h2>
+          <div style={{display:"flex",alignItems:"center",gap:"0.6rem"}}>
+            <button className="hamburger" onClick={()=>setSidebarOpen(v=>!v)}>☰</button>
+            <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"1.7rem",fontWeight:700,color:"var(--text)"}}>{TABS.find(t=>t.id===tab)?.icon} {TABS.find(t=>t.id===tab)?.label}</h2>
+          </div>
           <div style={{display:"flex",gap:"0.75rem",alignItems:"center"}}>
             <div className="relative">
               <button className="btn btn-ghost btn-icon relative" onClick={()=>setShowNotifs(v=>!v)} style={{fontSize:"1rem"}}>
@@ -821,7 +812,7 @@ function Dashboard({ photos, albums, requests, messages, notifications, onLogout
                 <img src={p.thumb} alt={p.title} loading="lazy" />
                 <div className="photo-overlay">
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",width:"100%"}}>
-                    <div><p style={{fontFamily:"'Playfair Display',serif",fontSize:"0.92rem",color:"#fff"}}>{p.title}</p><p style={{fontSize:"0.7rem",color:"rgba(255,255,255,0.6)"}}>{albums.find(a=>a.id===p.album)?.name}</p></div>
+                    <div><p style={{fontFamily:"'Playfair Display',serif",fontSize:"0.92rem",color:"#fff"}}>{p.title}</p><p style={{fontSize:"0.7rem",color:"rgba(255,255,255,0.6)"}}>{albums.find(a=>a.id===p.albumId)?.name}</p></div>
                     <button className="btn btn-danger btn-sm" onClick={e=>{e.stopPropagation();onDeletePhoto(p.id);}}>✕</button>
                   </div>
                 </div>
@@ -849,7 +840,7 @@ function Dashboard({ photos, albums, requests, messages, notifications, onLogout
           <div className="grid-3">
             {albums.map(a=>(
               <div key={a.id} className="album-card"><img src={a.cover} alt={a.name} />
-                <div className="album-overlay"><p style={{fontFamily:"'Playfair Display',serif",fontSize:"1rem",color:"#fff",fontWeight:500}}>{a.name}</p><p style={{fontSize:"0.73rem",color:"rgba(255,255,255,0.7)"}}>{photos.filter(p=>p.album===a.id).length} photos</p></div>
+                <div className="album-overlay"><p style={{fontFamily:"'Playfair Display',serif",fontSize:"1rem",color:"#fff",fontWeight:500}}>{a.name}</p><p style={{fontSize:"0.73rem",color:"rgba(255,255,255,0.7)"}}>{photos.filter(p=>p.albumId===a.id).length} photos</p></div>
               </div>
             ))}
           </div>
@@ -919,15 +910,15 @@ function Dashboard({ photos, albums, requests, messages, notifications, onLogout
 
 // ─── ROOT ─────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [photos,setPhotos]=useState(SEED_PHOTOS);
-  const [albums,setAlbums]=useState(SEED_ALBUMS);
-  const [requests,setRequests]=useState(SEED_REQUESTS);
-  const [messages,setMessages]=useState(SEED_MESSAGES);
+  const [photos,setPhotos]=useState([]);
+  const [albums,setAlbums]=useState([]);
+  const [requests,setRequests]=useState([]);
+  const [messages,setMessages]=useState([]);
   const [likes,setLikes]=useState({});
   const [selectedAlbum,setSelectedAlbum]=useState(null);
-  const [notifications,setNotifications]=useState(["Samuel requested to download Golden Hour","Meron Alemu left a message for you","Abel requested Cherry Blossoms"]);
+  const [notifications,setNotifications]=useState([]);
+  const [loading,setLoading]=useState(true);
   const {toasts,push:toast}=useToast();
-  const [loaded,setLoaded]=useState(false);
   const navigate=useNavigate();
   const location=useLocation();
   const [theme,setTheme]=useState(()=>{
@@ -945,46 +936,80 @@ export default function App() {
   },[theme]);
 
   useEffect(()=>{(async()=>{
-    const [ph,al,rq,ms,lk]=await Promise.all([dbGet(SK.photos),dbGet(SK.albums),dbGet(SK.requests),dbGet(SK.messages),dbGet(SK.likes)]);
-    if(ph)setPhotos(ph); if(al)setAlbums(al); if(rq)setRequests(rq); if(ms)setMessages(ms); if(lk)setLikes(lk);
-    setLoaded(true);
+    try {
+      const [ph,al,rq,ms]=await Promise.all([
+        api.getPhotos(), api.getAlbums(), api.getRequests(), api.getMessages(),
+      ]);
+      if(ph)setPhotos(ph.photos);
+      if(al)setAlbums(al.albums);
+      if(rq)setRequests(rq.requests);
+      if(ms)setMessages(ms.messages);
+      const notifs = rq.requests
+        .filter(r=>r.status==="pending")
+        .map(r=>`${r.name} requested to save "${r.photoTitle}"`);
+      setNotifications(notifs.length > 0 ? notifs : []);
+    } catch(err) {
+      console.error("Failed to load data", err);
+    }
+    setLoading(false);
   })();},[]);
 
-  useEffect(()=>{if(loaded)dbSet(SK.photos,photos);},[photos,loaded]);
-  useEffect(()=>{if(loaded)dbSet(SK.albums,albums);},[albums,loaded]);
-  useEffect(()=>{if(loaded)dbSet(SK.requests,requests);},[requests,loaded]);
-  useEffect(()=>{if(loaded)dbSet(SK.messages,messages);},[messages,loaded]);
-  useEffect(()=>{if(loaded)dbSet(SK.likes,likes);},[likes,loaded]);
-
-  const handleRequestDownload=data=>{
-    const id="r"+Date.now();
-    const newReq={id,photoId:data.photoId,photoTitle:data.photoTitle,name:data.name,from:data.from,message:data.message,social:data.social||"",status:"pending",date:new Date().toISOString()};
-    setRequests(r=>{
-      const updated=[newReq,...r];
-      dbSet(SK.requests,updated);
-      return updated;
-    });
-    setMessages(m=>{
-      const updated=[{id:"m"+Date.now(),name:data.name,text:data.message,from:data.from,date:new Date().toISOString().slice(0,10)},...m];
-      dbSet(SK.messages,updated);
-      return updated;
-    });
-    setNotifications(n=>[`${data.name} requested to save "${data.photoTitle}"`,...n]);
+  const handleRequestDownload=async data=>{
+    try {
+      const { request, message } = await api.createRequest(data);
+      setRequests(r=>[request,...r]);
+      setMessages(m=>[message,...m]);
+      setNotifications(n=>[`${data.name} requested to save "${data.photoTitle}"`,...n]);
+    } catch {
+      toast("Failed to send request","error");
+    }
   };
-  const handleApprove=id=>{
-    setRequests(r=>r.map(req=>req.id===id?{...req,status:"approved",approvedAt:new Date().toISOString(),expiresAt:new Date(Date.now()+24*3600000).toISOString()}:req));
-    const req=requests.find(r=>r.id===id);
-    toast(`Approved ${req?.name}'s request — 24h access granted 🌸`,"success");
+  const handleApprove=async id=>{
+    try {
+      const { request } = await api.approveRequest(id);
+      setRequests(r=>r.map(req=>req.id===id?request:req));
+      toast(`Approved ${request.name}'s request — 24h access granted 🌸`,"success");
+    } catch {
+      toast("Failed to approve request","error");
+    }
   };
-  const handleReject=id=>{setRequests(r=>r.map(req=>req.id===id?{...req,status:"rejected"}:req));toast("Request rejected","error");};
-  const handleUpload=(files,albumId)=>{
-    const newPhotos=files.map((f,i)=>{const url=URL.createObjectURL(f);return{id:"p"+Date.now()+i,title:f.name.replace(/\.[^.]+$/,""),album:albumId,url,thumb:url,date:new Date().toISOString().slice(0,10),tags:[],likes:0};});
-    setPhotos(p=>[...newPhotos,...p]);
-    setAlbums(a=>a.map(al=>al.id===albumId?{...al,count:al.count+files.length}:al));
-    toast(`${files.length} photo(s) uploaded 🌸`,"success");
+  const handleReject=async id=>{
+    try {
+      const { request } = await api.rejectRequest(id);
+      setRequests(r=>r.map(req=>req.id===id?request:req));
+      toast("Request rejected","error");
+    } catch {
+      toast("Failed to reject request","error");
+    }
   };
-  const handleDeletePhoto=id=>{setPhotos(p=>p.filter(ph=>ph.id!==id));toast("Photo deleted","error");};
-  const handleAddAlbum=name=>{setAlbums(a=>[...a,{id:"a"+Date.now(),name,cover:"https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400",count:0}]);toast(`Album "${name}" created 🌸`,"success");};
+  const handleUpload=async(files,albumId)=>{
+    try{
+      const { photos: newPhotos } = await api.uploadPhotos(files, albumId);
+      setPhotos(p=>[...newPhotos,...p]);
+      setAlbums(a=>a.map(al=>al.id===albumId?{...al,count:al.count+files.length}:al));
+      toast(`${files.length} photo(s) uploaded 🌸`,"success");
+    } catch {
+      toast("Failed to upload","error");
+    }
+  };
+  const handleDeletePhoto=async id=>{
+    try {
+      await api.deletePhoto(id);
+      setPhotos(p=>p.filter(ph=>ph.id!==id));
+      toast("Photo deleted","error");
+    } catch {
+      toast("Failed to delete photo","error");
+    }
+  };
+  const handleAddAlbum=async name=>{
+    try {
+      const { album } = await api.createAlbum(name);
+      setAlbums(a=>[...a,album]);
+      toast(`Album "${name}" created 🌸`,"success");
+    } catch {
+      toast("Failed to create album","error");
+    }
+  };
   const handleLike=id=>setLikes(l=>({...l,[id]:!l[id]}));
 
   const isGallery=location.pathname==="/";
@@ -1013,11 +1038,18 @@ export default function App() {
       </nav>
 
       <main>
+        {loading ? (
+          <div className="flex-center" style={{minHeight:"100vh",flexDirection:"column",gap:"1rem"}}>
+            <div className="spinner" style={{width:40,height:40,borderWidth:3}} />
+            <p style={{color:"var(--muted)",fontSize:"0.9rem"}}>Loading your memories…</p>
+          </div>
+        ) : (
         <Routes>
           <Route path="/" element={<GalleryPage photos={photos} albums={albums} requests={requests} messages={messages} onRequestDownload={handleRequestDownload} likes={likes} onLike={handleLike} selectedAlbum={selectedAlbum} setSelectedAlbum={setSelectedAlbum} />} />
           <Route path="/login" element={<LoginPage onLogin={()=>navigate("/dashboard")} />} />
           <Route path="/dashboard" element={<Dashboard photos={photos} albums={albums} requests={requests} messages={messages} notifications={notifications} onLogout={()=>navigate("/")} onApprove={handleApprove} onReject={handleReject} onUpload={handleUpload} onDeletePhoto={handleDeletePhoto} onAddAlbum={handleAddAlbum} />} />
         </Routes>
+        )}
       </main>
 
       <Toasts toasts={toasts} />
