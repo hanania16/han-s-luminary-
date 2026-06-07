@@ -211,21 +211,6 @@ body { background:var(--bg); color:var(--text); font-family:'Nunito',sans-serif;
 .photo-overlay { position:absolute; inset:0; background:linear-gradient(to top,rgba(74,25,66,0.85) 0%,transparent 55%); opacity:0; transition:opacity 0.3s; display:flex; align-items:flex-end; padding:1rem; }
 .photo-tile:hover .photo-overlay { opacity:1; }
 
-  [data-theme=dark] .photo-overlay {
-    background: linear-gradient(to top, rgba(30,30,55,0.95) 0%, transparent 55%);
-  }
-  [data-theme=dark] .album-overlay {
-    background: linear-gradient(to top, rgba(30,30,55,0.92) 0%, rgba(30,30,55,0.25) 55%, transparent);
-  }
-  [data-theme=dark] .hero-stat-num { color:var(--pink); }
-  [data-theme=dark] .hero-mesh {
-    background:
-      radial-gradient(ellipse 80% 60% at 20% 20%, rgba(236,72,153,0.18) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 50% at 80% 15%, rgba(192,132,252,0.22) 0%, transparent 55%),
-      radial-gradient(ellipse 50% 60% at 10% 80%, rgba(236,72,153,0.15) 0%, transparent 55%),
-      radial-gradient(ellipse 70% 50% at 90% 75%, rgba(192,132,252,0.15) 0%, transparent 60%);
-    background-color:var(--bg);
-  }
 
 /* ── ALBUMS ── */
 .album-card { position:relative; border-radius:var(--radius); overflow:hidden; aspect-ratio:4/3; cursor:pointer; transition:transform 0.3s; }
@@ -323,70 +308,6 @@ select option { background:#fff; }
   .login-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem; background:#000; position:relative; overflow:hidden; }
   .login-card { width:100%; max-width:400px; background:rgba(20,20,35,0.95); backdrop-filter:blur(20px); border:1.5px solid var(--border-med); border-radius:28px; padding:2.5rem; position:relative; z-index:1; box-shadow:0 20px 60px rgba(236,72,153,0.15); }
 
-@media(prefers-color-scheme:dark){
-  :root:not([data-theme=light]){
-    --bg:#0f0f18; --bg2:#1a1a2e; --bg3:#252540;
-    --card:rgba(30,30,55,0.85); --card-solid:#1e1e37;
-    --border:rgba(236,72,153,0.2); --border-med:rgba(236,72,153,0.35);
-    --text:#f0e8f5; --text2:#d4c0dc; --text3:#b898a8; --muted:#8b7298;
-    body{background:#0f0f18;color:#f0e8f5;}
-    .nav{background:rgba(15,15,24,0.92);border-bottom-color:var(--border);}
-    .modal{background:#1e1e37;}
-    .msg-card{background:#1e1e37;}
-    .notif-panel{background:#1e1e37;}
-    input,textarea,select{background:#1a1a2e;}
-    .upload-zone{background:rgba(236,72,153,0.05);}
-    .hero-mesh {
-      background:
-        radial-gradient(ellipse 80% 60% at 20% 20%, rgba(236,72,153,0.18) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 50% at 80% 15%, rgba(192,132,252,0.22) 0%, transparent 55%),
-        radial-gradient(ellipse 50% 60% at 10% 80%, rgba(236,72,153,0.15) 0%, transparent 55%),
-        radial-gradient(ellipse 70% 50% at 90% 75%, rgba(192,132,252,0.15) 0%, transparent 60%);
-      background-color:var(--bg);
-    }
-  }
-}
-[data-theme=dark]{
-  --bg:#0f0f18; --bg2:#1a1a2e; --bg3:#252540;
-  --card:rgba(30,30,55,0.85); --card-solid:#1e1e37;
-  --border:rgba(236,72,153,0.2); --border-med:rgba(236,72,153,0.35);
-  --text:#f0e8f5; --text2:#d4c0dc; --text3:#b898a8; --muted:#8b7298;
-  body{background:#0f0f18;color:#f0e8f5;}
-  .nav{background:rgba(15,15,24,0.92);border-bottom-color:var(--border);}
-  .modal{background:#1e1e37;}
-  .msg-card{background:#1e1e37;}
-  .notif-panel{background:#1e1e37;}
-  input,textarea,select{background:#1a1a2e;}
-  .upload-zone{background:rgba(236,72,153,0.05);}
-  .hero-mesh {
-    background:
-      radial-gradient(ellipse 80% 60% at 20% 20%, rgba(236,72,153,0.18) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 50% at 80% 15%, rgba(192,132,252,0.22) 0%, transparent 55%),
-      radial-gradient(ellipse 50% 60% at 10% 80%, rgba(236,72,153,0.15) 0%, transparent 55%),
-      radial-gradient(ellipse 70% 50% at 90% 75%, rgba(192,132,252,0.15) 0%, transparent 60%);
-    background-color:var(--bg);
-  }
-  .photo-overlay {
-    background: linear-gradient(to top, rgba(30,30,55,0.95) 0%, transparent 55%);
-  }
-  .album-overlay {
-    background: linear-gradient(to top, rgba(30,30,55,0.92) 0%, rgba(30,30,55,0.25) 55%, transparent);
-  }
-  .hero-stat-num { color:var(--pink); }
-}
-[data-theme=light]{
-  --bg:#fff5f8; --bg2:#ffeef4; --bg3:#ffe4ef;
-  --card:rgba(255,255,255,0.82); --card-solid:#ffffff;
-  --border:rgba(236,72,153,0.15); --border-med:rgba(236,72,153,0.28);
-  --text:#4a1942; --text2:#7e3a72; --text3:#b06fa0; --muted:#c9a0bc;
-  body{background:#fff5f8;color:#4a1942;}
-  .nav{background:rgba(255,245,248,0.92);border-bottom-color:var(--border);}
-  .modal{background:#fff;}
-  .msg-card{background:#ffffff;}
-  .notif-panel{background:#fff;}
-  input,textarea,select{background:#fff5f8;}
-  .upload-zone{background:rgba(236,72,153,0.03);}
-}
 `;
 
 // ─── SPARKLES DECORATION ─────────────────────────────────────────────────────
@@ -459,33 +380,19 @@ function Lightbox({ photo, onClose, onSave, approved }) {
         <p style={{fontSize:"0.78rem",color:"rgba(255,255,255,0.55)",marginBottom:"1rem"}}>{photo.date}</p>
         {approved
           ? <a href={photo.url} download className="btn btn-success btn-sm">⬇ Download</a>
-          : <button className="btn btn-primary btn-sm" onClick={onSave}>🌸 Request Save</button>}
+          : <button className="btn btn-primary btn-sm" onClick={onSave}>🌸 Save</button>}
       </div>
     </div>
   );
 }
 
-function PhotoTile({ photo, onClick, onSave, liked, onLike, approved, selectable, selected, onToggle }) {
+function PhotoTile({ photo, onClick, onSave, liked, onLike, approved, selected, onToggle }) {
   return (
-    <div className="photo-tile" onClick={()=>selectable ? onToggle(photo.id) : onClick(photo)} style={{cursor:selectable?"pointer":void 0}}>
+    <div className="photo-tile" onClick={()=>onClick(photo)}>
       <img src={photo.thumb} alt={photo.title} loading="lazy" />
-      {selectable && <div style={{position:"absolute",top:8,left:8,width:24,height:24,borderRadius:6,border:"2px solid rgba(255,255,255,0.7)",background:selected?"var(--pink)":"rgba(0,0,0,0.3)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.75rem",color:"#fff",fontWeight:700,transition:"all 0.15s",zIndex:2}}>{selected?"✓":""}</div>}
-      <div className="photo-overlay">
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",width:"100%"}}>
-          <div>
-            <p style={{fontFamily:"'Playfair Display',serif",fontSize:"0.95rem",color:"#fff",fontWeight:500}}>{photo.title}</p>
-            <p style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.6)"}}>{photo.date}</p>
-          </div>
-          <div style={{display:"flex",gap:"0.4rem"}} onClick={e=>e.stopPropagation()}>
-            <button className="btn btn-ghost btn-icon btn-sm" onClick={()=>{if(selectable)onToggle(photo.id);else onLike(photo.id)}}
-              style={{color:liked?"#fb7185":"rgba(255,255,255,0.7)",borderColor:liked?"rgba(251,113,133,0.5)":"rgba(255,255,255,0.25)",animation:liked?"heartPop 0.3s ease":"none"}}>
-              {liked?"♥":"♡"}
-            </button>
-            <button className="btn btn-primary btn-sm" onClick={()=>onSave(photo)} style={{fontSize:"0.75rem",padding:"0.3rem 0.7rem"}}>
-              {approved?"⬇":"🌸 Save"}
-            </button>
-          </div>
-        </div>
+      <div onClick={e=>{e.stopPropagation();onToggle(photo.id);}} style={{position:"absolute",top:8,left:8,width:24,height:24,borderRadius:6,border:"2px solid rgba(255,255,255,0.7)",background:selected?"var(--pink)":"rgba(0,0,0,0.3)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.75rem",color:"#fff",fontWeight:700,transition:"all 0.15s",zIndex:2,cursor:"pointer"}}>{selected?"✓":""}</div>
+      <div className="photo-overlay" style={{alignItems:"flex-end",justifyContent:"flex-end",padding:"0.75rem"}} onClick={e=>e.stopPropagation()}>
+        <button className="btn btn-primary btn-sm" onClick={()=>onSave(photo)} style={{fontSize:"0.75rem",padding:"0.3rem 0.7rem"}}>🌸 Save</button>
       </div>
     </div>
   );
@@ -618,11 +525,10 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
   const [multiSent, setMultiSent] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [allThumb, setAllThumb] = useState(0);
-  const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState(new Set());
 
   const toggleSelect = pid => { setSelected(s => { const n=new Set(s); if(n.has(pid)) n.delete(pid); else n.add(pid); return n; }); };
-  const clearSelect = () => { setSelected(new Set()); setSelectMode(false); setMultiSent(false); };
+  const clearSelect = () => { setSelected(new Set()); setMultiSent(false); };
   const openMultiReq = () => {
     if (selected.size === 0) return;
     const sel = photos.filter(p => selected.has(p.id));
@@ -660,16 +566,14 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
           "Welcome to the solution to 'Can you send me that photo?'."
         </p>
         <p className="hero-subtitle" style={{maxWidth:560}}>
-          I've spent enough time searching through my gallery and forwarding the same pictures. So here's the entire archive.</p><p className="hero-subtitle" style={{maxWidth:560,marginTop:"0.75rem"}}>
+          {/* I've spent enough time searching through my gallery and forwarding the same pictures. So here's the entire archive.</p><p className="hero-subtitle" style={{maxWidth:560,marginTop:"0.75rem"}}> */}
           <span style={{fontSize:"1.1rem"}}>✦ </span><strong style={{fontWeight:700}}>If you'd like to save something, send me a request and maybe a message you've never had the chance to say.</strong><span style={{fontSize:"1.1rem"}}> ✦</span>
-        </p>
+        </p>  
         <div className="hero-actions">
           <button className="btn btn-primary" onClick={()=>document.getElementById("gallery-anchor")?.scrollIntoView({behavior:"smooth"})}>
             🌸 Browse Archive
           </button>
-          <button className={`btn ${selectMode?"btn-secondary":"btn-ghost"}`} onClick={()=>{setSelectMode(v=>!v);setSelected(new Set());}}>
-            {selectMode?"✕ Cancel":"☐ Select Photos"}
-          </button>
+
         </div>
         <div className="hero-stats">
           {[["Photos",photos.length],["Albums",albums.length],["Messages",messages.length+" shared"]].map(([l,v])=>(
@@ -716,7 +620,12 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
             <h2 className="section-title">Archive</h2>
             {selectedAlbum&&<p style={{color:"var(--pink)",fontSize:"0.83rem",marginTop:"0.2rem"}}>Filtered: {albums.find(a=>a.id===selectedAlbum)?.name}</p>}
           </div>
-          <input placeholder="Search photos…" value={search} onChange={e=>{setSearch(e.target.value);setShowAll(true);}} style={{width:210}} />
+          {selected.size > 0 && (
+            <div style={{display:"flex",alignItems:"center",gap:"0.75rem"}}>
+              <button className="btn btn-ghost btn-sm" onClick={clearSelect}>Cancel</button>
+              <button className="btn btn-primary btn-sm" onClick={openMultiReq}>🌸 Request Selected ({selected.size})</button>
+            </div>
+          )}
         </div>
         {filtered.length===0?(
           <div style={{textAlign:"center",padding:"4rem",color:"var(--muted)"}}>
@@ -727,7 +636,7 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
           <>
           <div className="masonry">
             {displayPhotos.map(p=>(
-              <PhotoTile key={p.id} photo={p} onClick={setLightbox} onSave={()=>handleSave(p)} liked={likes[p.id]} onLike={onLike} approved={isApproved(p.id)} selectable={selectMode} selected={selected.has(p.id)} onToggle={toggleSelect} />
+              <PhotoTile key={p.id} photo={p} onClick={setLightbox} onSave={()=>handleSave(p)} liked={likes[p.id]} onLike={onLike} approved={isApproved(p.id)} selected={selected.has(p.id)} onToggle={toggleSelect} />
             ))}
           </div>
           {!selectedAlbum&&!showAll&&filtered.length>8&&(
@@ -747,7 +656,7 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
           <p className="section-sub" style={{textAlign:"center"}}>Words people left behind — turned into a digital memory book.</p>
         </div>
         <div className="grid-3">
-          {messages.map(m=>(
+          {messages.filter(m=>["Samuel","Abel","Meron"].some(n=>m.name.startsWith(n))).map(m=>(
             <div key={m.id} className="msg-card">
               <p className="msg-text">"{m.text}"</p>
               <div className="divider" />
@@ -757,20 +666,10 @@ function GalleryPage({ photos, albums, requests, messages, onRequestDownload, li
               </div>
             </div>
           ))}
-          {messages.length===0&&<div style={{gridColumn:"1/-1",textAlign:"center",padding:"3rem",color:"var(--muted)"}}>No messages yet. Be the first to share something with Han.</div>}
+          {messages.filter(m=>["Samuel","Abel","Meron"].some(n=>m.name.startsWith(n))).length===0&&<div style={{gridColumn:"1/-1",textAlign:"center",padding:"3rem",color:"var(--muted)"}}>No messages yet. Be the first to share something with Han.</div>}
         </div>
       </section>
 
-      {/* FOOTER */}
-      {selectMode && selected.size > 0 && (
-        <div style={{position:"sticky",bottom:0,left:0,right:0,background:"var(--card-solid)",borderTop:"1px solid var(--border)",padding:"0.75rem 1.5rem",display:"flex",justifyContent:"space-between",alignItems:"center",zIndex:100,backdropFilter:"blur(12px)",gap:"1rem"}}>
-          <p style={{fontSize:"0.88rem",color:"var(--text2)"}}>{selected.size} photo{selected.size!==1?"s":""} selected</p>
-          <div style={{display:"flex",gap:"0.5rem"}}>
-            <button className="btn btn-ghost btn-sm" onClick={clearSelect}>Cancel</button>
-            <button className="btn btn-primary btn-sm" onClick={openMultiReq}>🌸 Request Selected ({selected.size})</button>
-          </div>
-        </div>
-      )}
       <footer style={{textAlign:"center",padding:"2.5rem",borderTop:"1px solid var(--border)",color:"var(--muted)",fontSize:"0.8rem"}}>
         <p style={{fontFamily:"'Playfair Display',serif",fontSize:"1.1rem",fontStyle:"italic",color:"var(--pink-dark)",marginBottom:"0.4rem"}}>✦ Luminary</p>
         <p>Han's personal memory archive · All rights reserved</p>
@@ -1020,6 +919,97 @@ function Dashboard({ photos, albums, requests, messages, notifications, onLogout
   );
 }
 
+// ─── MY REQUESTS PAGE ──────────────────────────────────────────────────────────
+function MyRequestsPage() {
+  const [requests, setRequests] = useState([]);
+  const [photos, setPhotos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [guestName, setGuestName] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [approvedRes, guestReq] = await Promise.all([
+          api.getGuestApproved(),
+          api.getGuestRequests(),
+        ]);
+        setRequests(approvedRes.requests || []);
+        setPhotos(approvedRes.photos || []);
+        const pending = (guestReq.requests || []).filter(r => r.status === "pending");
+        if (pending.length > 0) {
+          setGuestName(pending[0].name);
+        }
+      } catch (e) {
+        console.error("Failed to load guest requests", e);
+      }
+      setLoading(false);
+    })();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex-center" style={{ minHeight: "100vh", flexDirection: "column", gap: "1rem" }}>
+        <div className="spinner" style={{ width: 40, height: 40, borderWidth: 3 }} />
+        <p style={{ color: "var(--muted)", fontSize: "0.9rem" }}>Loading your downloads…</p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ padding: "6rem 2rem 4rem", maxWidth: 800, margin: "0 auto" }}>
+      <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+        <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>🌸</div>
+        <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: "2.4rem", fontWeight: 700, color: "var(--text)" }}>
+          {guestName ? `${guestName}'s ` : ""}Downloads
+        </h1>
+        <p style={{ color: "var(--text3)", fontSize: "0.95rem", marginTop: "0.5rem" }}>
+          Photos Han has approved for you to save.
+        </p>
+      </div>
+
+      {requests.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "3rem", color: "var(--muted)" }}>
+          <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>🌸</div>
+          <p>No approved downloads yet. Browse the archive and request a photo to get started.</p>
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          {requests.map(r => {
+            const reqPhotos = photos.filter(p => r.photoId === p.id || (r.photoIds || []).includes(p.id));
+            return (
+              <div key={r.id} className="card" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                <div style={{ display: "flex", gap: "0.35rem", overflowX: "auto" }}>
+                  {reqPhotos.map(p => (
+                    <img key={p.id} src={p.thumb} alt={p.title} style={{ width: 72, height: 72, borderRadius: "10px", objectFit: "cover", flexShrink: 0 }} />
+                  ))}
+                  {reqPhotos.length === 0 && <div style={{ width: 72, height: 72, borderRadius: "10px", background: "var(--border)" }} />}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontWeight: 600, color: "var(--text)" }}>
+                    {reqPhotos.map(p => p.title).join(", ") || "Photo"}
+                  </p>
+                  {r.expiresAt && (
+                    <p style={{ fontSize: "0.78rem", color: isExpired(r.expiresAt) ? "#be123c" : "#0f766e", marginTop: "0.2rem" }}>
+                      ⏱ {formatExpiry(r.expiresAt)}
+                    </p>
+                  )}
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                  {reqPhotos.map(p => (
+                    !isExpired(r.expiresAt) && (
+                      <a key={p.id} href={p.url} download className="btn btn-success btn-sm">⬇ {p.title}</a>
+                    )
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── ROOT ─────────────────────────────────────────────────────────────────────
 export default function App() {
   const [photos,setPhotos]=useState([]);
@@ -1033,19 +1023,7 @@ export default function App() {
   const {toasts,push:toast}=useToast();
   const navigate=useNavigate();
   const location=useLocation();
-  const [theme,setTheme]=useState(()=>{
-    const stored=localStorage.getItem("lum:theme");
-    if(stored) return stored;
-    return "dark";
-  });
-  const toggleTheme=useCallback(()=>{
-    const next=theme==="dark"?"light":"dark";
-    setTheme(next);
-    localStorage.setItem("lum:theme",next);
-  },[theme]);
-  useEffect(()=>{
-    document.documentElement.setAttribute("data-theme",theme);
-  },[theme]);
+
 
   useEffect(()=>{(async()=>{
     try {
@@ -1068,12 +1046,14 @@ export default function App() {
 
   const handleRequestDownload=async data=>{
     try {
+      await api.createGuest({ name: data.name, whereTheyKnowHan: data.from }).catch(()=>{});
       const { request, message } = await api.createRequest(data);
       setRequests(r=>[request,...r]);
       setMessages(m=>[message,...m]);
       setNotifications(n=>[`${data.name} requested to save ${(data.photoTitles||[data.photoTitle]).length} photo(s)`,...n]);
-    } catch {
-      toast("Failed to send request","error");
+    } catch(e) {
+      console.error("Request failed", e);
+      toast(e.message||"Failed to send request","error");
     }
   };
   const handleApprove=async id=>{
@@ -1134,13 +1114,11 @@ export default function App() {
       <style>{FONTS}{CSS}</style>
 
       <nav className="nav">
-        <div className="nav-logo" onClick={()=>navigate("/")}>🌸 <span>Luminary</span></div>
+        <div className="nav-logo" onClick={()=>navigate("/")}>🌸 <span>Hanania's Luminary</span></div>
         <div style={{display:"flex",gap:"0.75rem",alignItems:"center"}}>
-          <button className="btn btn-ghost btn-icon" onClick={toggleTheme} aria-label="Toggle theme" title={`Switch to ${theme==="dark"?"light":"dark"} mode`}>
-            {theme==="dark"?"☀":"🌙"}
-          </button>
           {isGallery&&<>
             <button className="btn btn-ghost btn-sm" onClick={()=>document.querySelector("#gallery-anchor")?.scrollIntoView({behavior:"smooth"})}>Archive</button>
+            <button className="btn btn-ghost btn-sm" onClick={()=>navigate("/my-requests")}>⬇ My Downloads</button>
           </>}
           {isDashboard&&<>
             <span style={{fontSize:"0.82rem",color:"var(--muted)"}}>Owner Dashboard</span>
@@ -1159,6 +1137,7 @@ export default function App() {
         ) : (
         <Routes>
           <Route path="/" element={<GalleryPage photos={photos} albums={albums} requests={requests} messages={messages} onRequestDownload={handleRequestDownload} likes={likes} onLike={handleLike} selectedAlbum={selectedAlbum} setSelectedAlbum={setSelectedAlbum} />} />
+          <Route path="/my-requests" element={<MyRequestsPage />} />
           <Route path="/login" element={<LoginPage onLogin={()=>navigate("/dashboard")} />} />
           <Route path="/dashboard" element={<Dashboard photos={photos} albums={albums} requests={requests} messages={messages} notifications={notifications} onLogout={()=>navigate("/")} onApprove={handleApprove} onReject={handleReject} onUpload={handleUpload} onDeletePhoto={handleDeletePhoto} onAddAlbum={handleAddAlbum} />} />
         </Routes>

@@ -161,6 +161,51 @@ app.post("/api/albums", async (req, res) => {
   }
 });
 
+// Guests
+app.post("/api/guests", async (req, res) => {
+  try {
+    const { guestId, name, whereTheyKnowHan } = req.body;
+    if (!name || !whereTheyKnowHan) {
+      return res.status(400).json({ error: "Name and whereTheyKnowHan required" });
+    }
+    const id = guestId || randomUUID();
+    const guest = await prisma.guest.upsert({
+      where: { id },
+      update: { name, whereTheyKnowHan, lastSeenAt: new Date() },
+      create: { id, name, whereTheyKnowHan },
+    });
+    res.json({ guest });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get("/api/guests/:id/requests", async (req, res) => {
+  try {
+    const requests = await prisma.request.findMany({
+      where: { guestId: req.params.id },
+      orderBy: { createdAt: "desc" },
+    });
+    res.json({ requests });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get("/api/guests/:id/approved", async (req, res) => {
+  try {
+    const requests = await prisma.request.findMany({
+      where: { guestId: req.params.id, status: "approved", expiresAt: { gt: new Date() } },
+      orderBy: { createdAt: "desc" },
+    });
+    const photoIds = requests.flatMap(r => r.photoIds.length > 0 ? r.photoIds : [r.photoId]);
+    const photos = await prisma.photo.findMany({ where: { id: { in: photoIds } } });
+    res.json({ requests, photos });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Requests
 app.get("/api/requests", async (req, res) => {
   try {
@@ -173,7 +218,7 @@ app.get("/api/requests", async (req, res) => {
 
 app.post("/api/requests", async (req, res) => {
   try {
-    const { photoIds, photoTitles, photoId, photoTitle, name, from, message, social } = req.body;
+    const { photoIds, photoTitles, photoId, photoTitle, name, from, message, social, guestId } = req.body;
     const ids = photoIds || (photoId ? [photoId] : []);
     const titles = photoTitles || (photoTitle ? [photoTitle] : []);
     if (!ids.length || !name || !from || !message) {
@@ -183,6 +228,7 @@ app.post("/api/requests", async (req, res) => {
     const request = await prisma.request.create({
       data: {
         id: "r" + Date.now(),
+        guestId: guestId || null,
         photoId: ids[0],
         photoTitle: titles[0],
         photoIds: ids,

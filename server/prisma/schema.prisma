@@ -7,6 +7,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Guest {
+  id              String    @id
+  name            String
+  whereTheyKnowHan String
+  createdAt       DateTime  @default(now())
+  lastSeenAt      DateTime  @default(now())
+  requests        Request[]
+}
+
 model Photo {
   id        String   @id
   title     String
@@ -30,6 +39,8 @@ model Album {
 
 model Request {
   id         String    @id
+  guestId    String?
+  guest      Guest?    @relation(fields: [guestId], references: [id])
   photoId    String
   photoTitle String
   photoIds   String[]  @default([])

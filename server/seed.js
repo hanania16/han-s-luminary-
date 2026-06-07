@@ -7,9 +7,7 @@ const SEED_PHOTOS = [
   { id:"p1", title:"Golden Hour",      albumId:"a1", url:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800", thumb:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400", date:"2024-06-15", tags:["nature","sunset"],  likes:12 },
   { id:"p2", title:"City Lights",      albumId:"a1", url:"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800", thumb:"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400", date:"2024-07-20", tags:["city","night"],    likes:8  },
   { id:"p3", title:"Morning Fog",      albumId:"a1", url:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800", thumb:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400", date:"2024-08-01", tags:["mountain","fog"],  likes:23 },
-  { id:"p4", title:"Ocean Calm",       albumId:"a2", url:"https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=800", thumb:"https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=400", date:"2024-09-10", tags:["ocean","calm"],    likes:15 },
-  { id:"p5", title:"Forest Path",      albumId:"a2", url:"https://images.unsplash.com/photo-1448375240586-882707db888b?w=800", thumb:"https://images.unsplash.com/photo-1448375240586-882707db888b?w=400", date:"2024-10-05", tags:["forest","path"],   likes:19 },
-  { id:"p6", title:"Desert Dunes",     albumId:"a2", url:"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800", thumb:"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=400", date:"2024-11-12", tags:["desert","travel"],  likes:31 },
+
   { id:"p7", title:"Starry Night",     albumId:"a3", url:"https://images.unsplash.com/photo-1464802686167-b939a6910659?w=800", thumb:"https://images.unsplash.com/photo-1464802686167-b939a6910659?w=400", date:"2024-12-01", tags:["stars","night"],   likes:44 },
   { id:"p8", title:"Cherry Blossoms",  albumId:"a3", url:"https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=800", thumb:"https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=400", date:"2025-03-20", tags:["spring","japan"],   likes:56 },
   { id:"p9", title:"Rainy Window",     albumId:"a3", url:"https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=800", thumb:"https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=400", date:"2025-01-08", tags:["rain","moody"],    likes:27 },
@@ -17,7 +15,6 @@ const SEED_PHOTOS = [
 
 const SEED_ALBUMS = [
   { id:"a1", name:"Me as a Kid",       cover:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400", count:3 },
-  { id:"a2", name:"My Friends & Me",   cover:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400", count:3 },
   { id:"a3", name:"Only Me",           cover:"https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=400", count:3 },
 ];
 
