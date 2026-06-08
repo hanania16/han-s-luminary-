@@ -8,6 +8,23 @@ function timeAgo(iso){const s=Math.floor((Date.now()-new Date(iso))/1000);if(s<6
 function isExpired(iso){return new Date(iso)<new Date();}
 function formatExpiry(iso){if(!iso)return"";const diff=new Date(iso)-Date.now();if(diff<0)return"expired";return`${Math.floor(diff/3600000)}h ${Math.floor((diff%3600000)/60000)}m remaining`;}
 function shuffle(arr){return [...arr].sort(()=>Math.random()-0.5);}
+async function downloadImage(url, filename) {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+  } catch (e) {
+    // fallback: open in new tab
+    window.open(url, "_blank");
+  }
+}
 
 // ─── TOAST ────────────────────────────────────────────────────────────────────
 let tid=0;
@@ -1001,7 +1018,7 @@ function MyRequestsPage() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
                   {reqPhotos.map(p => (
                     !isExpired(r.expiresAt) && (
-                      <a key={p.id} href={p.url} download className="btn btn-success btn-sm">Download</a>
+                      <button key={p.id} onClick={() => downloadImage(p.url, p.title + ".jpg")} className="btn btn-success btn-sm">Download</button>
                     )
                   ))}
                 </div>
