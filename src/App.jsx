@@ -958,6 +958,9 @@ function MyRequestsPage() {
 
   return (
     <div style={{ padding: "6rem 2rem 4rem", maxWidth: 800, margin: "0 auto" }}>
+      <div style={{ marginBottom: "1rem" }}>
+        <button onClick={() => window.history.back()} style={{ background: "none", border: "none", fontSize: "1.1rem", cursor: "pointer", color: "var(--text)", display: "inline-flex", alignItems: "center", gap: "0.3rem", padding: "0.4rem 0.6rem", borderRadius: "8px" }}>← Back</button>
+      </div>
       <div style={{ textAlign: "center", marginBottom: "3rem" }}>
         <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>🌸</div>
         <h1 style={{ fontFamily: "'Playfair Display',serif", fontSize: "2.4rem", fontWeight: 700, color: "var(--text)" }}>
