@@ -1001,7 +1001,7 @@ function MyRequestsPage() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
                   {reqPhotos.map(p => (
                     !isExpired(r.expiresAt) && (
-                      <a key={p.id} href={p.url} download className="btn btn-success btn-sm">⬇ {p.title}</a>
+                      <a key={p.id} href={p.url} download className="btn btn-success btn-sm">Download</a>
                     )
                   ))}
                 </div>
@@ -1122,7 +1122,7 @@ export default function App() {
         <div style={{display:"flex",gap:"0.75rem",alignItems:"center"}}>
           {isGallery&&<>
             <button className="btn btn-ghost btn-sm" onClick={()=>document.querySelector("#gallery-anchor")?.scrollIntoView({behavior:"smooth"})}>Archive</button>
-            <button className="btn btn-ghost btn-sm" onClick={()=>navigate("/my-requests")}>⬇ My Downloads</button>
+            <button className="btn btn-ghost btn-sm" onClick={()=>navigate("/my-requests")}>My Downloads</button>
           </>}
           {isDashboard&&<>
             <span style={{fontSize:"0.82rem",color:"var(--muted)"}}>Owner Dashboard</span>
