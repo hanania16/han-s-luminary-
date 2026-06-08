@@ -3,17 +3,29 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "prisma": {
+    "schema": "server/prisma/schema.prisma"
+  },
   "scripts": {
     "dev": "vite",
     "dev:server": "concurrently -n vite,server -c cyan,green \"vite\" \"cd server && npm run dev\"",
-    "build": "vite build",
+    "build": "npx prisma generate && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "npx prisma generate"
   },
   "dependencies": {
+    "@prisma/client": "^6.6.0",
+    "@vercel/speed-insights": "^2.0.0",
+    "cloudinary": "^2.10.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "multer": "^2.1.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "react-router-dom": "^7.16.0"
+    "react-router-dom": "^7.16.0",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -25,6 +37,8 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
+    "prisma": "^6.6.0",
+    "vercel": "^54.9.1",
     "vite": "^8.0.12"
   }
 }

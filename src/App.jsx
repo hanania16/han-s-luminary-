@@ -1,3 +1,4 @@
+import { SpeedInsights } from "@vercel/speed-insights/react"
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate, Routes, Route, useLocation } from "react-router-dom";
 import { api } from "./api.js";
