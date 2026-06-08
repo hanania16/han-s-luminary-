@@ -1166,6 +1166,7 @@ export default function App() {
       </main>
 
       <Toasts toasts={toasts} />
+      <SpeedInsights />
     </>
   );
 } 
